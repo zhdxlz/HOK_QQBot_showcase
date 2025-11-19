@@ -1,0 +1,17 @@
+{# 通用 GitHub 底部组件，可在渲染时通过 github_url 变量自定义链接 #}
+{% set _github_url = github_url if github_url is defined else 'https://github.com/your-org/your-repo' %}
+<footer class="github-global-footer" role="contentinfo">
+  <a href="{{ _github_url }}" class="github-link" target="_blank" rel="noopener noreferrer" aria-label="访问 GitHub 仓库">
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="github-icon">
+      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.38 7.86 10.9.58.1.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.87-1.54-3.87-1.54-.53-1.34-1.3-1.7-1.3-1.7-1.06-.73.08-.72.08-.72 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.74 1.27 3.41.97.11-.75.41-1.27.75-1.56-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.99.01 1.98.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.24 2.75.12 3.04.74.8 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.67.42.36.8 1.09.8 2.2 0 1.59-.02 2.87-.02 3.26 0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
+    </svg>
+  </a>
+  <style>
+    .github-global-footer { margin-top: 24px; padding: 18px 0 28px; text-align: center; }
+    .github-global-footer .github-link { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,.08); text-decoration: none; transition: all .25s ease; }
+    .github-global-footer .github-link:hover { transform: translateY(-4px); box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+    .github-global-footer .github-icon { width: 28px; height: 28px; fill: #24292f; transition: fill .25s ease; }
+    .github-global-footer .github-link:hover .github-icon { fill: #0969da; }
+    @media (prefers-color-scheme: dark) { .github-global-footer .github-link { background:#1f2428; box-shadow: 0 2px 6px rgba(0,0,0,.4);} .github-global-footer .github-icon{fill:#e6edf3;} .github-global-footer .github-link:hover .github-icon{fill:#58a6ff;} }
+  </style>
+</footer>
