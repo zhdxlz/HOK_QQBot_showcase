@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API不可用</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .error-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .error-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+        }
+        
+        h1 {
+            font-size: 6rem;
+            margin: 0;
+            color: #6a11cb;
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin: 20px 0 10px;
+            color: #2c3e50;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+        }
+        
+        .animation {
+            margin: 40px auto;
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+        
+        .box {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            animation: move 2.5s infinite ease-in-out;
+        }
+        
+        .box:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .box:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .box:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        @keyframes move {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(100px, 0);
+            }
+            50% {
+                transform: translate(100px, 100px);
+            }
+            75% {
+                transform: translate(0, 100px);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 4rem;
+            }
+            
+            h2 {
+                font-size: 1.4rem;
+            }
+            
+            .error-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-container">
+            <div class="animation">
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+            <h1></h1>
+            <h2>Oops! Page not found</h2>
+            <h3>该API链接不可用</h3><p><br>请从 <b>生煎守卫🤖</b> 发出的 <b>链接</b> 中进入页面。 </p>
+            <p>Why? {{message}}</p>
+            <!-- <a href="javascript:void(0);" onclick="closeWindow();" class="btn">Go to Homepage</a>
+            <script>
+            function closeWindow() {
+                // 尝试关闭窗口
+                if(window.history.length > 1) {
+                    window.history.back(); // 先尝试返回
+                } else {
+                    window.close(); // 如果无法返回则尝试关闭
+                }
+            }
+            </script> -->
+        </div>
+    </div>
+</body>
+</html>

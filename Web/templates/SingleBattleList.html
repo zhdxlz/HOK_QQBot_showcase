@@ -1,0 +1,2389 @@
+    <!DOCTYPE html>
+    <html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>单人详情-生煎守卫🤖</title>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script> -->
+        <style>
+            :root {
+                --primary-color: #6c9bd1;
+                --secondary-color: #4fc3f7;
+                --dark-color: #2c3e50;
+                --light-color: #f8f9fa;
+                --success-color: #28a745;
+                --danger-color: #dc3545;
+                --accent-color: #6c757d;
+            }
+            
+            body {
+                font-family: 'Microsoft YaHei', sans-serif;
+                background-color: #f8f9fa;
+                color: #333;
+                margin: 0;
+                padding: 0;
+                line-height: 1.6;
+            }
+            
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            header {
+                background: linear-gradient(135deg, rgba(108, 155, 209, 0.1), rgba(79, 195, 247, 0.1));
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: var(--dark-color);
+                padding: 20px 0;
+                text-align: center;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            }
+            
+            h1 {
+                margin: 0;
+                font-size: 2.5rem;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            /* 地图筛选按钮栏样式 */
+            .map-filter-bar {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 20px;
+                padding: 10px 0;
+            }
+            .map-filter-btn {
+                background: rgba(255, 255, 255, 0.7);
+                color: var(--dark-color);
+                border: 1px solid rgba(108, 155, 209, 0.2);
+                border-radius: 8px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+            }
+            .map-filter-btn.active,
+            .map-filter-btn:hover {
+                background: rgba(108, 155, 209, 0.15);
+                color: var(--primary-color);
+                border: 1px solid rgba(108, 155, 209, 0.4);
+                transform: translateY(-1px);
+            }
+            
+            .dashboard {
+                /* display: grid; */
+                display: none;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .card {
+                background-color: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            }
+            
+            .card-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .card-icon {
+                width: 40px;
+                height: 40px;
+                background-color: var(--secondary-color);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 15px;
+                color: white;
+                font-size: 20px;
+            }
+            
+            .card-title {
+                margin: 0;
+                font-size: 1.2rem;
+                color: var(--dark-color);
+            }
+            
+            .card-value {
+                font-size: 2rem;
+                font-weight: bold;
+                margin: 10px 0;
+                color: var(--primary-color);
+            }
+            
+            .card-description {
+                color: #666;
+                font-size: 0.9rem;
+            }
+            
+            .chart-container {
+                background-color: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                margin-bottom: 30px;
+                height: 400px;
+            }
+            
+            .battle-list h3 {
+                margin-bottom: 10px;
+                color: var(--dark-color);
+                font-size: 1.1rem;
+            }
+            
+            .battle-item {
+                display: flex;
+                align-items: flex-start;
+                padding: 12px 16px;
+                margin-bottom: 8px;
+                border: none;
+                border-radius: 12px;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+                position: relative;
+            }
+
+            .favorite-btn {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                width: 32px;
+                height: 32px;
+                border: none;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.9);
+                color: #ccc;
+                font-size: 14px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+                z-index: 10;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .favorite-btn:hover {
+                background: rgba(255, 255, 255, 1);
+                color: #ff6b6b;
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .favorite-btn.liked {
+                color: #ff6b6b;
+                background: rgba(255, 107, 107, 0.1);
+            }
+
+            .favorite-btn.loading {
+                pointer-events: none;
+                opacity: 0.6;
+            }
+
+            .favorite-btn svg {
+                width: 18px;
+                height: 18px;
+                fill: currentColor;
+                transition: all 0.3s ease;
+            }
+
+            .share-btn {
+                position: absolute;
+                top: 12px;
+                right: 48px;
+                width: 32px;
+                height: 32px;
+                border: none;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.9);
+                color: #666;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+                z-index: 10;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .share-btn:hover {
+                background: rgba(255, 255, 255, 1);
+                color: #4fc3f7;
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .share-btn.loading {
+                pointer-events: none;
+                opacity: 0.6;
+            }
+
+            .share-btn svg {
+                width: 16px;
+                height: 16px;
+                fill: currentColor;
+                transition: all 0.3s ease;
+            }
+
+            .floating-back-btn {
+                position: fixed;
+                top: 24px;
+                left: 24px;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+                border: none;
+                cursor: pointer;
+                box-shadow: 0 4px 20px rgba(250, 128, 114, 0.35);
+                transition: all 0.3s ease;
+                z-index: 1100;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .floating-back-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 24px rgba(250, 128, 114, 0.45);
+            }
+
+            .floating-back-btn:active {
+                transform: translateY(0);
+            }
+
+            .floating-back-btn svg {
+                width: 24px;
+                height: 24px;
+                fill: white;
+                transition: transform 0.3s ease;
+            }
+
+            .floating-back-btn.loading {
+                cursor: wait;
+                opacity: 0.75;
+            }
+
+            .floating-back-btn.loading svg {
+                transform: translateX(-2px);
+            }
+
+            .battle-item.battle-loading {
+                cursor: wait;
+                opacity: 0.78;
+            }
+
+            .battle-item.battle-loading::after {
+                content: "⏳";
+                position: absolute;
+                top: 10px;
+                left: 12px;
+                font-size: 18px;
+                color: rgba(0,0,0,0.5);
+            }
+
+            .modal-overlay[data-loading="true"] {
+                cursor: wait;
+            }
+
+            .modal-overlay[data-loading="true"] a,
+            .modal-overlay a.modal-link-disabled {
+                pointer-events: none;
+                cursor: wait;
+                opacity: 0.65;
+                text-decoration: none;
+            }
+
+            .modal-link-loading-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(255, 255, 255, 0.65);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 15000;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.25s ease;
+            }
+
+            .modal-link-loading-overlay.show {
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            .modal-link-loading-content {
+                background: rgba(255, 255, 255, 0.95);
+                padding: 24px 36px;
+                border-radius: 16px;
+                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+                color: var(--dark-color);
+                font-weight: 600;
+                min-width: 220px;
+            }
+
+            .modal-link-loading-spinner {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                border: 4px solid rgba(108, 155, 209, 0.25);
+                border-top-color: var(--primary-color);
+                animation: modal-link-spin 0.8s linear infinite;
+            }
+
+            @keyframes modal-link-spin {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            
+            .battle-item.win-bg {
+                background: linear-gradient(to right, transparent 0%, transparent 50%, rgba(40, 167, 69, 0.4) 100%);
+            }
+            
+            .battle-item.lose-bg {
+                background: linear-gradient(to right, transparent 0%, transparent 50%, rgba(220, 53, 69, 0.4) 100%);
+            }
+            
+            .battle-item:hover {
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                transform: translateY(-2px);
+                cursor: pointer;
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            .battle-item:last-child {
+                margin-bottom: 0;
+            }
+            
+            .hero-icon {
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                margin-right: 10px;
+                object-fit: cover;
+                border: 2px solid var(--light-color);
+                flex-shrink: 0;
+            }
+            
+            .battle-info {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .battle-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            
+            .battle-title {
+                display: block;
+                align-items: center;
+                gap: 1px;
+                flex: 1;
+            }
+            
+            .battle-badges {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            
+            .battle-meta {
+                display: flex;
+                justify-content: space-between;
+                gap: 4px;
+                margin: 2px 0;
+                font-size: 0.8rem;
+            }
+            
+            .battle-time {
+                display: flex;
+                flex-direction: column;
+                gap: 1px;
+                color: #666;
+            }
+            
+            .game-type-info {
+                display: flex;
+                flex-direction: column;
+                gap: 1px;
+                text-align: right;
+            }
+            
+            .footer {
+                text-align: center;
+                padding: 20px;
+                /* color: #6c757d; */
+                font-size: 14px;
+                border-top: 1px solid #e9ecef;
+                margin-top: 40px;
+            }
+            .rank-info {
+                color: var(--primary-color);
+                font-weight: bold;
+                font-size: 0.9rem;
+            }
+            
+            .rank-label {
+                font-size: 0.7rem;
+                color: #999;
+                font-weight: normal;
+            }
+            
+            .rank-value {
+                font-weight: 600;
+                color: var(--primary-color);
+                font-size: 0.8rem;
+            }
+            
+            .score-increase {
+                color: var(--success-color);
+                font-weight: bold;
+            }
+            
+            .score-decrease {
+                color: var(--danger-color);
+                font-weight: bold;
+            }
+            
+            .special-kills {
+                color: var(--accent-color);
+                font-weight: bold;
+                background: rgba(108, 117, 125, 0.1);
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 0.8rem;
+            }
+            
+
+            
+            @media (max-width: 768px) {
+                .battle-item {
+                    padding: 6px 8px;
+                    padding-right: 84px; /* 为收藏和分享按钮留出空间 */
+                }
+                
+                .hero-icon {
+                    width: 40px;
+                    height: 40px;
+                    margin-right: 8px;
+                }
+                
+                .battle-info {
+                    gap: 1px;
+                }
+                
+                .battle-meta {
+                    flex-direction: column;
+                    gap: 1px;
+                    margin: 0;
+                }
+                
+                .battle-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 2px;
+                }
+                
+                .battle-badges {
+                    align-self: flex-end;
+                }
+                
+                .stats {
+                    gap: 4px;
+                    padding: 2px 0;
+                }
+                
+                .kda-stat .stat-value {
+                    font-size: 0.95rem;
+                }
+                
+                .grade-stat .stat-value {
+                    font-size: 0.95rem;
+                }
+                
+                .game-type-info {
+                    text-align: left;
+                }
+
+                .favorite-btn {
+                    width: 28px;
+                    height: 28px;
+                    top: 8px;
+                    right: 8px;
+                }
+
+                .favorite-btn svg {
+                    width: 16px;
+                    height: 16px;
+                }
+
+                .share-btn {
+                    width: 28px;
+                    height: 28px;
+                    top: 8px;
+                    right: 40px;
+                }
+
+                .share-btn svg {
+                    width: 14px;
+                    height: 14px;
+                }
+
+                .floating-back-btn {
+                    top: 14px;
+                    left: 14px;
+                    width: 48px;
+                    height: 48px;
+                }
+
+                .floating-back-btn svg {
+                    width: 20px;
+                    height: 20px;
+                }
+            }
+            
+            .battle-result {
+                font-weight: bold;
+                font-size: 0.8rem;
+                padding: 2px 8px;
+                border-radius: 10px;
+                text-align: center;
+                min-width: 40px;
+            }
+            
+            .win {
+                color: var(--success-color);
+                background: linear-gradient(to right, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.3));
+                border: 1px solid rgba(40, 167, 69, 0.3);
+            }
+            
+            .lose {
+                color: var(--danger-color);
+                background: linear-gradient(to right, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.3));
+                border: 1px solid rgba(220, 53, 69, 0.3);
+            }
+            
+            .mvp-badge {
+                gap: 4px;
+                padding: 2px 0;
+
+                color: var(--accent-color);
+                font-weight: bold;
+                background: rgba(108, 117, 125, 0.1);
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 0.8rem;
+            }
+            
+            .stats {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 4px 0;
+                border-top: 1px solid #f0f0f0;
+                font-size: 0.8rem;
+            }
+            
+            .stat {
+                display: flex;
+                align-items: center;
+                gap: 2px;
+            }
+            
+            .stat-label {
+                font-size: 0.75rem;
+                color: #999;
+            }
+            
+            .stat-value {
+                font-weight: bold;
+                color: var(--dark-color);
+            }
+            
+            .kda-stat .stat-value {
+                font-size: 1rem;
+                font-weight: bold;
+                color: var(--primary-color);
+            }
+            
+            .grade-stat .stat-value {
+                font-size: 1rem;
+                font-weight: bold;
+                color: var(--success-color);
+            }
+            
+            .hidden-message {
+                text-align: center;
+                padding: 50px;
+                color: #666;
+                font-size: 1.2rem;
+            }
+            
+            .player-profile {
+                display: flex;
+                align-items: center;
+                margin-bottom: 20px;
+                padding: 24px;
+                border-radius: 15px;
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(15px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                color: var(--dark-color);
+            }
+
+            /* 调整子元素文字颜色 */
+            .player-profile .player-name,
+            .player-profile .player-title {
+                color: var(--dark-color);
+                text-shadow: none;
+            }
+
+            /* 可选：微调头像边框颜色 */
+            .player-avatar {
+                border: 3px solid rgba(108, 155, 209, 0.3); 
+                /* 原为 var(--secondary-color) */
+            }
+            
+            .player-info {
+                text-align: center;
+                flex: 1;
+            }
+            
+            .player-name {
+                text-align: center;
+                margin: 0;
+                font-size: 1.5rem;
+                color: var(--dark-color);
+            }
+            
+            .player-title {
+                text-align: center;
+                display: inline-block;
+                background-color: rgba(108, 155, 209, 0.15);
+                color: var(--primary-color);
+                border: 1px solid rgba(108, 155, 209, 0.3);
+                padding: 4px 12px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                margin-top: 5px;
+                font-weight: 500;
+            }
+            
+            .player-stats {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                margin-top: 10px;
+            }
+            
+            .player-stat {
+                text-align: center;
+            }
+            
+            .stat-value {
+                font-weight: bold;
+                color: var(--primary-color);
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+                color: #666;
+            }
+            
+            .error-message {
+                background-color: #ffebee;
+                color: #c62828;
+                padding: 20px;
+                border-radius: 10px;
+                margin: 20px 0;
+                text-align: center;
+                border-left: 4px solid #c62828;
+            }
+            
+            .loading-message {
+                text-align: center;
+                padding: 50px;
+                color: #666;
+                font-size: 1.2rem;
+            }
+            
+            @media (max-width: 768px) {
+                .dashboard {
+                    grid-template-columns: 1fr;
+                }
+                
+                .player-stats {
+                    grid-template-columns: 1fr 1fr;
+                }
+                .map-filter-bar {
+                    flex-direction: column;
+                    gap: 6px;
+                }
+            }
+
+            /* 新功能提示对话框样式 */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.6);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(5px);
+            }
+
+            .modal-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .modal-content {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 20px;
+                padding: 0;
+                max-width: 480px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+                transform: scale(0.7) translateY(50px);
+                transition: all 0.3s ease;
+            }
+
+            .modal-overlay.show .modal-content {
+                transform: scale(1) translateY(0);
+            }
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px 25px 15px;
+                border-bottom: 1px solid rgba(108, 155, 209, 0.2);
+            }
+
+            .modal-header h3 {
+                margin: 0;
+                color: var(--dark-color);
+                font-size: 1.4rem;
+                font-weight: 600;
+            }
+
+            .modal-close {
+                background: none;
+                border: none;
+                font-size: 24px;
+                color: #666;
+                cursor: pointer;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s ease;
+            }
+
+            .modal-close:hover {
+                background-color: rgba(108, 155, 209, 0.1);
+                color: var(--primary-color);
+            }
+
+            .modal-body {
+                padding: 25px;
+                text-align: center;
+            }
+
+            .tip-icon {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                animation: bounce 2s infinite;
+            }
+
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% {
+                    transform: translateY(0);
+                }
+                40% {
+                    transform: translateY(-10px);
+                }
+                60% {
+                    transform: translateY(-5px);
+                }
+            }
+
+            .modal-body p {
+                color: var(--dark-color);
+                font-size: 1.1rem;
+                line-height: 1.6;
+                margin-bottom: 20px;
+            }
+
+            .tip-features {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+
+            .tip-item {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                padding: 12px 16px;
+                background: rgba(108, 155, 209, 0.08);
+                border: 1px solid rgba(108, 155, 209, 0.15);
+                border-radius: 10px;
+                transition: all 0.2s ease;
+            }
+
+            .tip-item:hover {
+                background: rgba(108, 155, 209, 0.12);
+                transform: translateX(5px);
+            }
+
+            .tip-emoji {
+                font-size: 1.2rem;
+                margin-right: 12px;
+                width: 24px;
+                text-align: center;
+            }
+
+            .tip-item span:last-child {
+                color: var(--dark-color);
+                font-weight: 500;
+            }
+
+            .modal-footer {
+                padding: 15px 25px 25px;
+                text-align: center;
+            }
+
+            .modal-btn {
+                background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 25px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(108, 155, 209, 0.3);
+            }
+
+            .modal-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(108, 155, 209, 0.4);
+            }
+
+            .modal-btn:active {
+                transform: translateY(0);
+            }
+
+            @media (max-width: 480px) {
+                .modal-content {
+                    width: 95%;
+                    margin: 10px;
+                }
+                
+                .modal-header, .modal-body, .modal-footer {
+                    padding-left: 20px;
+                    padding-right: 20px;
+                }
+                
+                .tip-features {
+                    gap: 10px;
+                }
+                
+                .tip-item {
+                    padding: 10px 12px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- 新增：地图筛选按钮栏 -->
+            <div class="player-profile">
+                <img id="playerAvatar" class="player-avatar" src="" alt="玩家头像" onerror="this.style.display='none'">
+                <div class="player-info">
+                    <h2 id="playerName" class="player-name">未知玩家</h2>
+                    <span id="playerTitle" class="player-title">无称号</span>
+                    <!-- <div class="player-stats">
+                        <div class="player-stat">
+                            <div class="stat-value" id="totalBattles">0</div>
+                            <div class="stat-label">总场数</div>
+                        </div>
+                        <div class="player-stat">
+                            <div class="stat-value" id="mvpCount">0</div>
+                            <div class="stat-label">MVP次数</div>
+                        </div>
+                        <div class="player-stat">
+                            <div class="stat-value" id="winRate">0%</div>
+                            <div class="stat-label">胜率</div>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+            <div id="mapFilterBar" class="map-filter-bar" style="display:none;"></div>
+            <div id="loadingMessage" class="loading-message">
+                <h3>正在加载数据...</h3>
+            </div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;">
+                <h3>数据加载失败</h3>
+                <p id="errorText"></p>
+            </div>
+            
+            <div id="playerSection" style="display: none;">
+                
+                <div class="battle-list" id="battleList">
+                    <!-- <h3>最近</h3> -->
+                    <div id="battleItems"></div>
+                </div>
+
+                <!-- <div class="dashboard">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">🏆</div>
+                            <h3 class="card-title">近期表现</h3>
+                        </div>
+                        <div class="card-value" id="recentWinRate">0%</div>
+                        <div class="card-description">最近10场胜率</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">⚔️</div>
+                            <h3 class="card-title">KDA评分</h3>
+                        </div>
+                        <div class="card-value" id="avgKDA">0.0</div>
+                        <div class="card-description">平均每场KDA</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">⭐</div>
+                            <h3 class="card-title">MVP率</h3>
+                        </div>
+                        <div class="card-value" id="mvpRate">0%</div>
+                        <div class="card-description">近期比赛MVP比例</div>
+                    </div>
+                </div> -->
+                
+                <!-- <div class="chart-container">
+                    <div id="kdaChart" style="width: 100%; height: 100%;"></div>
+                </div>
+                
+                <div class="chart-container">
+                    <div id="performanceChart" style="width: 100%; height: 100%;"></div>
+                </div> -->
+                
+            </div>
+            
+            <div id="hiddenMessage" class="hidden-message" style="display: none;">
+                <h3>战绩隐藏</h3>
+                <p id="invisDes">战绩已隐藏</p>
+            </div>
+
+            <div class="footer">
+                <p>Data from 生煎守卫🤖</p>
+            </div>
+        </div>
+
+        <button id="backFloatingBtn" class="floating-back-btn" type="button" title="返回上一页" aria-label="返回上一页">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+            </svg>
+        </button>
+
+        <div id="modalLinkLoadingOverlay" class="modal-link-loading-overlay" aria-hidden="true" role="alert" aria-live="assertive">
+            <div class="modal-link-loading-content">
+                <div class="modal-link-loading-spinner" role="presentation"></div>
+                <div class="modal-link-loading-text">正在跳转，请稍候...</div>
+            </div>
+        </div>
+
+        <!-- 新功能提示对话框 -->
+        <div id="featureTipModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🎉 新功能提示</h3>
+                    <button class="modal-close" onclick="closeFeatureTip()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="tip-icon">
+                        👆
+                    </div>
+                    <p>现在可以点击<strong>对局卡片</strong>查看对局数据分析！</p>
+                    <p>现在可以点击<strong>卡片右上角</strong>分享与收藏对局</p>
+                    <div class="tip-features">
+                        <div class="tip-item">
+                            <span class="tip-emoji">📊</span>
+                            <span>详细数据面板</span>
+                        </div>
+                        <div class="tip-item">
+                            <span class="tip-emoji">❤</span>
+                            <span>收藏对局</span>
+                        </div>
+                        <div class="tip-item">
+                            <span class="tip-emoji">📈</span>
+                            <span>发送对局到群聊</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn" onclick="closeFeatureTip()">我知道了</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // 用于存储所有比赛数据和当前筛选
+            let allBattles = [];
+            let currentMapFilter = '全部';
+            let profileData = null; // 添加全局变量存储profile数据
+            const modalLinkTimers = new WeakMap();
+            const battleCardLoadingTimers = new WeakMap();
+
+            function setupBackButton() {
+                const backBtn = document.getElementById('backFloatingBtn');
+                if (!backBtn) {
+                    return;
+                }
+
+                const navigateBack = () => {
+                    if (backBtn.dataset.busy === 'true') {
+                        return;
+                    }
+
+                    backBtn.dataset.busy = 'true';
+                    backBtn.classList.add('loading');
+
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else if (document.referrer) {
+                        window.location.href = document.referrer;
+                    } else {
+                        window.location.href = '/';
+                    }
+
+                    setTimeout(() => {
+                        delete backBtn.dataset.busy;
+                        backBtn.classList.remove('loading');
+                    }, 1200);
+                };
+
+                backBtn.addEventListener('click', navigateBack);
+                backBtn.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        navigateBack();
+                    }
+                });
+            }
+
+            function showModalLinkLoading(message = '正在跳转，请稍候...') {
+                const overlay = document.getElementById('modalLinkLoadingOverlay');
+                if (!overlay) {
+                    return;
+                }
+
+                const textElement = overlay.querySelector('.modal-link-loading-text');
+                if (textElement) {
+                    textElement.textContent = message;
+                }
+
+                overlay.classList.add('show');
+                overlay.setAttribute('aria-hidden', 'false');
+            }
+
+            function hideModalLinkLoading() {
+                const overlay = document.getElementById('modalLinkLoadingOverlay');
+                if (!overlay) {
+                    return;
+                }
+
+                overlay.classList.remove('show');
+                overlay.setAttribute('aria-hidden', 'true');
+            }
+
+            function resetModalLink(link) {
+                if (!link) {
+                    return;
+                }
+
+                const timerId = modalLinkTimers.get(link);
+                if (timerId) {
+                    clearTimeout(timerId);
+                    modalLinkTimers.delete(link);
+                }
+
+                delete link.dataset.loading;
+                link.classList.remove('modal-link-disabled');
+                link.removeAttribute('aria-disabled');
+            }
+
+            function releaseModalLoadingState(modal) {
+                if (!modal) {
+                    return;
+                }
+
+                delete modal.dataset.loading;
+                modal.querySelectorAll('a[href]').forEach((anchor) => {
+                    resetModalLink(anchor);
+                });
+            }
+
+            function markBattleCardLoading(card) {
+                if (!card) {
+                    return;
+                }
+
+                const existingTimer = battleCardLoadingTimers.get(card);
+                if (existingTimer) {
+                    clearTimeout(existingTimer);
+                }
+
+                card.dataset.loading = 'true';
+                card.classList.add('battle-loading');
+                card.style.pointerEvents = 'none';
+
+                const timerId = setTimeout(() => {
+                    hideModalLinkLoading();
+                    releaseBattleCardLoading(card);
+                }, 12000);
+
+                battleCardLoadingTimers.set(card, timerId);
+            }
+
+            function releaseBattleCardLoading(card) {
+                if (!card) {
+                    return;
+                }
+
+                const timerId = battleCardLoadingTimers.get(card);
+                if (timerId) {
+                    clearTimeout(timerId);
+                    battleCardLoadingTimers.delete(card);
+                }
+
+                delete card.dataset.loading;
+                card.classList.remove('battle-loading');
+                card.style.removeProperty('pointer-events');
+            }
+
+            document.addEventListener('click', function(event) {
+                const link = event.target.closest('.modal-overlay a[href]');
+                if (!link) {
+                    return;
+                }
+
+                const href = link.getAttribute('href');
+                if (!href || href.trim() === '' || href.startsWith('javascript:')) {
+                    return;
+                }
+
+                const modal = link.closest('.modal-overlay');
+                if (link.dataset.loading === 'true' || (modal && modal.dataset.loading === 'true')) {
+                    event.preventDefault();
+                    return;
+                }
+
+                event.preventDefault();
+
+                const loadingText = link.getAttribute('data-loading-text') || '正在跳转，请稍候...';
+                showModalLinkLoading(loadingText);
+
+                link.dataset.loading = 'true';
+                link.classList.add('modal-link-disabled');
+                link.setAttribute('aria-disabled', 'true');
+                link.blur();
+
+                if (modal) {
+                    modal.dataset.loading = 'true';
+                }
+
+                const target = (link.getAttribute('target') || '').toLowerCase();
+                const rel = (link.getAttribute('rel') || '').toLowerCase();
+
+                const performNavigation = () => {
+                    if (target && target !== '_self') {
+                        const relValue = rel.includes('noopener') ? rel : (rel ? rel + ' noopener' : 'noopener');
+                        link.setAttribute('rel', relValue.trim());
+                        const opened = window.open(href, target);
+
+                        if (!opened) {
+                            hideModalLinkLoading();
+                            resetModalLink(link);
+                            if (modal) {
+                                releaseModalLoadingState(modal);
+                            }
+                            return;
+                        }
+
+                        setTimeout(() => {
+                            hideModalLinkLoading();
+                            resetModalLink(link);
+                            if (modal) {
+                                releaseModalLoadingState(modal);
+                            }
+                        }, 800);
+                    } else {
+                        window.location.assign(href);
+                    }
+                };
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(performNavigation);
+                });
+
+                const timerId = setTimeout(() => {
+                    hideModalLinkLoading();
+                    resetModalLink(link);
+                    if (modal) {
+                        releaseModalLoadingState(modal);
+                    }
+                }, 12000);
+
+                modalLinkTimers.set(link, timerId);
+            }, true);
+
+            window.addEventListener('pageshow', () => {
+                hideModalLinkLoading();
+                document.querySelectorAll('.modal-overlay[data-loading="true"]').forEach((modal) => {
+                    releaseModalLoadingState(modal);
+                });
+                document.querySelectorAll('.battle-item[data-loading="true"]').forEach((card) => {
+                    releaseBattleCardLoading(card);
+                });
+            });
+
+            window.addEventListener('pagehide', () => {
+                hideModalLinkLoading();
+                document.querySelectorAll('.modal-overlay[data-loading="true"]').forEach((modal) => {
+                    releaseModalLoadingState(modal);
+                });
+                document.querySelectorAll('.battle-item[data-loading="true"]').forEach((card) => {
+                    releaseBattleCardLoading(card);
+                });
+            });
+
+            // 页面加载完成后执行
+            document.addEventListener('DOMContentLoaded', function() {
+                setupBackButton();
+                const filename = '{{filename}}';
+                loadGameData(filename);
+
+                // 检查是否首次访问，如果是则显示新功能提示
+                checkFirstVisit();
+            });
+
+            // 检查首次访问并显示新功能提示
+            function checkFirstVisit() {
+                const hasSeenUpdatesTip_20251006 = localStorage.getItem('hasSeenUpdatesTip_20251006');
+                if (!hasSeenUpdatesTip_20251006 || hasSeenUpdatesTip_20251006 < 2) {
+                    // 延迟显示，确保页面加载完成
+                    setTimeout(showFeatureTip, 1000);
+                }
+            }
+
+            // 显示新功能提示对话框
+            function showFeatureTip() {
+                const modal = document.getElementById('featureTipModal');
+                if (modal) {
+                    releaseModalLoadingState(modal);
+                    hideModalLinkLoading();
+                    modal.classList.add('show');
+                }
+            }
+
+            // 关闭新功能提示对话框
+            function closeFeatureTip() {
+                const modal = document.getElementById('featureTipModal');
+                if (modal) {
+                    const hasSeenUpdatesTip_20251006 = localStorage.getItem('hasSeenUpdatesTip_20251006');
+                    releaseModalLoadingState(modal);
+                    hideModalLinkLoading();
+                    modal.classList.remove('show');
+                    // 保存已查看状态，下次不再显示
+                    localStorage.setItem('hasSeenUpdatesTip_20251006', Number(hasSeenUpdatesTip_20251006)+1);
+                }
+            }
+
+            // 点击遮罩层也可以关闭对话框
+            document.addEventListener('click', function(e) {
+                const modal = document.getElementById('featureTipModal');
+                if (e.target === modal) {
+                    closeFeatureTip();
+                }
+            });
+            
+            // ESC键关闭对话框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('featureTipModal');
+                    if (modal && modal.classList.contains('show')) {
+                        closeFeatureTip();
+                    }
+                }
+            });
+            
+            // 从服务器加载JSON数据
+            async function loadGameData(filepath) {
+                try {
+                    const response = await fetch(filepath);
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    analyzeData(data);
+                    
+                } catch (error) {
+                    console.error('加载数据失败:', error);
+                    showError('加载数据失败: ' + error.message);
+                }
+            }
+            
+            // 显示加载状态
+            function showLoading() {
+                document.getElementById('loadingMessage').style.display = 'block';
+                document.getElementById('playerSection').style.display = 'none';
+                document.getElementById('hiddenMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+            
+            // 显示错误信息
+            function showError(message) {
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('playerSection').style.display = 'none';
+                document.getElementById('hiddenMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorText').textContent = message;
+            }
+            
+            // 分析游戏数据
+            function analyzeData(data) {
+                try {
+                    hideLoading();
+                    
+                    // 检查数据完整性
+                    if (!data) {
+                        throw new Error('数据为空');
+                    }
+                    
+                    
+                    // 检查是否战绩隐藏
+                    if (data.btlist && data.btlist.invisible) {
+                        showHiddenMessage(data.btlist.invisDes || '战绩已隐藏');
+                        return;
+                    }
+                    
+                    // 显示玩家区域
+                    document.getElementById('playerSection').style.display = 'block';
+                    
+                    // 更新玩家资料
+                    if (data.profile) {
+                        profileData = data.profile; // 保存到全局变量
+                        updatePlayerProfile(data.profile);
+                    }
+                    
+                    // 分析比赛数据
+                    if (data.btlist && data.btlist.list) {
+                        allBattles = data.btlist.list;
+                        renderMapFilterBar(allBattles);
+                        analyzeBattles(allBattles, currentMapFilter);
+                    } else {
+                        document.getElementById('battleItems').innerHTML = '<p>暂无比赛记录</p>';
+                    }
+                    
+                } catch (error) {
+                    console.error('分析数据失败:', error);
+                    showError('数据分析失败: ' + error.message);
+                }
+            }
+            
+            // 隐藏加载状态
+            function hideLoading() {
+                document.getElementById('loadingMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+            
+            // 处理卡片点击事件，跳转到战斗详情页面
+            function handleBattleCardClick(battle, profileData, cardElement) {
+                try {
+                    if (cardElement) {
+                        if (cardElement.dataset.loading === 'true') {
+                            return;
+                        }
+                        const loadingText = cardElement.getAttribute('data-loading-text') || '获取数据中...';
+                        showModalLinkLoading(loadingText);
+                        markBattleCardLoading(cardElement);
+                    } else {
+                        showModalLinkLoading();
+                    }
+
+                    if (!profileData) {
+                        throw new Error('缺少玩家资料');
+                    }
+
+                    // 从e.json数据中提取所需参数
+                    const gameSvr = battle.gameSvrId || '';
+                    const gameSeq = battle.gameSeq || '';
+                    const targetRoleId = profileData.targetRoleId || '';
+                    const relaySvr = battle.relaySvrId || '';
+                    const battleType = parseInt(battle.pvpType) || 0;
+                    
+                    // 调试日志
+                    console.log('战斗详情参数:', {
+                        gameSvr: gameSvr,
+                        gameSeq: gameSeq,
+                        targetRoleId: targetRoleId,
+                        relaySvr: relaySvr,
+                        battleType: battleType
+                    });
+                    
+                    // 构建URL参数
+                    const params = new URLSearchParams({
+                        gameSvr: gameSvr,
+                        gameSeq: gameSeq,
+                        targetRoleId: targetRoleId,
+                        relaySvr: relaySvr,
+                        battleType: battleType,
+                        key: '{{key}}'
+                    });
+                    
+                    // 构建完整URL并跳转
+                    const targetUrl = `/jump-btldetail?${params.toString()}`;
+                    console.log('跳转URL:', targetUrl);
+                    const newTab = window.open(targetUrl, '_blank');
+
+                    if (!newTab) {
+                        hideModalLinkLoading();
+                        if (cardElement) {
+                            releaseBattleCardLoading(cardElement);
+                        }
+                        if (typeof showToast === 'function') {
+                            showToast('弹窗被浏览器阻止，请允许打开新窗口查看详情', 'warning');
+                        } else {
+                            alert('弹窗被浏览器阻止，请允许打开新窗口查看详情');
+                        }
+                        return;
+                    }
+
+                    setTimeout(() => {
+                        hideModalLinkLoading();
+                        if (cardElement) {
+                            releaseBattleCardLoading(cardElement);
+                        }
+                    }, 1200);
+                    
+                } catch (error) {
+                    console.error('跳转战斗详情失败:', error);
+                    hideModalLinkLoading();
+                    if (cardElement) {
+                        releaseBattleCardLoading(cardElement);
+                    }
+                    if (typeof showToast === 'function') {
+                        showToast('跳转失败，请稍后重试', 'error');
+                    } else {
+                        alert('跳转失败，请稍后重试');
+                    }
+                }
+            }
+            
+            // 处理收藏按钮点击事件
+            async function handleFavorite(battle, profileData, buttonElement) {
+                try {
+                    // 设置按钮为加载状态
+                    buttonElement.classList.add('loading');
+                    const outlineIcon = buttonElement.querySelector('.heart-outline');
+                    const filledIcon = buttonElement.querySelector('.heart-filled');
+                    
+                    // 提取战局信息参数
+                    const gameSeq = battle.gameSeq || '';
+                    
+                    // 构建GET请求参数
+                    const params = new URLSearchParams({
+                        gameSeq: gameSeq,
+                        key: '{{key}}'
+                    });
+                    
+                    // 调试日志
+                    console.log('收藏战局参数:', { gameSeq, key: '{{key}}' });
+                    
+                    // 发送GET请求到收藏接口
+                    const response = await fetch(`/like-btldetail?${params.toString()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('收藏成功:', result);
+                        
+                        // 更新按钮状态为已收藏
+                        buttonElement.classList.remove('loading');
+                        buttonElement.classList.add('favorited');
+                        if (outlineIcon) outlineIcon.style.display = 'none';
+                        if (filledIcon) filledIcon.style.display = 'block';
+                        buttonElement.title = '已收藏';
+                        
+                        // 显示成功提示
+                        const message = result.message || '收藏成功！';
+                        showToast(message, 'success');
+                        
+                    } else {
+                        // 尝试解析错误响应
+                        let errorMessage = '收藏失败，请稍后重试';
+                        try {
+                            const errorData = await response.json();
+                            if (errorData.message) {
+                                errorMessage = errorData.message;
+                            } else if (errorData.detail && errorData.detail.message) {
+                                // 处理FastAPI的detail.message格式
+                                errorMessage = errorData.detail.message;
+                            }
+                        } catch (e) {
+                            // 如果无法解析JSON，使用状态码信息
+                            errorMessage = `收藏失败: ${response.status} ${response.statusText}`;
+                        }
+                        
+                        // 直接显示错误信息，不抛出异常
+                        buttonElement.classList.remove('loading');
+                        if (outlineIcon) outlineIcon.style.display = 'block';
+                        if (filledIcon) filledIcon.style.display = 'none';
+                        showToast(errorMessage, 'error');
+                        return; // 直接返回，避免进入catch块
+                    }
+                    
+                } catch (error) {
+                    console.error('收藏战局失败:', error);
+                    
+                    // 恢复按钮状态
+                    buttonElement.classList.remove('loading');
+                    const outlineIcon = buttonElement.querySelector('.heart-outline');
+                    const filledIcon = buttonElement.querySelector('.heart-filled');
+                    if (outlineIcon) outlineIcon.style.display = 'block';
+                    if (filledIcon) filledIcon.style.display = 'none';
+                    
+                    // 显示具体的错误提示
+                    showToast(error.message || '收藏失败，请稍后重试', 'error');
+                }
+            }
+
+            // 分享限时控制
+            let lastShareTime = 0;
+            const SHARE_COOLDOWN = 10000; // 10秒限制
+            
+            function checkBtlOfficialWithMatching(btlname) {
+                btlname = btlname.toLowerCase();
+                
+                // 如果有排除模式，直接返回 false
+                if (['1v1', '2v2', '3v3'].some(pattern => btlname.includes(pattern))) {
+                    return false;
+                }
+                
+                // 检查是否包含目标模式
+                return ['排位', '巅峰', '战队','王者峡谷'].some(pattern => btlname.includes(pattern));
+            }
+            // 处理分享按钮点击事件
+            async function handleShare(battle, profileData, buttonElement) {
+                try {
+                    // 检查分享限时
+                    const currentTime = Date.now();
+                    const timeSinceLastShare = currentTime - lastShareTime;
+                    
+                    if (timeSinceLastShare < SHARE_COOLDOWN) {
+                        const remainingSeconds = Math.ceil((SHARE_COOLDOWN - timeSinceLastShare) / 1000);
+                        showToast(`请等待 ${remainingSeconds} 秒后再分享`, 'warning');
+                        return;
+                    }
+                    if (!checkBtlOfficialWithMatching(battle.mapName)){
+                        showToast(`仅支持分享排位/巅峰/战队/匹配`, 'warning');
+                        return;
+                    }
+                    
+                    // 显示确认对话框
+                    const confirmed = await showShareConfirm();
+                    if (!confirmed) {
+                        return; // 用户取消分享
+                    }
+                    
+                    // 记录当前分享时间
+                    lastShareTime = currentTime;
+                    
+                    // 添加点击效果
+                    buttonElement.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        buttonElement.style.transform = 'scale(1)';
+                    }, 150);
+                    
+                    // 提取战局信息参数 - 与战斗详情页面保持一致
+                    const gameSvr = battle.gameSvrId || '';
+                    const gameSeq = battle.gameSeq || '';
+                    const targetRoleId = profileData.targetRoleId || '';
+                    const relaySvr = battle.relaySvrId || '';
+                    const battleType = parseInt(battle.pvpType) || 0;
+                    
+                    // 构建GET请求参数
+                    const params = new URLSearchParams({
+                        gameSvr: gameSvr,
+                        gameSeq: gameSeq,
+                        targetRoleId: targetRoleId,
+                        relaySvr: relaySvr,
+                        battleType: battleType,
+                        key: '{{key}}'
+                    });
+                    
+                    // 调试日志
+                    console.log('分享战局参数:', {
+                        gameSvr: gameSvr,
+                        gameSeq: gameSeq,
+                        targetRoleId: targetRoleId,
+                        relaySvr: relaySvr,
+                        battleType: battleType,
+                        key: '{{key}}'
+                    });
+                    
+                    // 发送GET请求到分享接口
+                    const response = await fetch(`/share-btldetail?${params.toString()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.text();
+                        console.log('分享成功:', result);
+                        
+                        showToast('分享成功，等待片刻后消息会发出', 'success');
+                        
+                        // 如果浏览器支持，可以复制分享链接到剪贴板
+                        if (navigator.clipboard && result.includes('http')) {
+                            try {
+                                const urlMatch = result.match(/https?:\/\/[^\s]+/);
+                                if (urlMatch) {
+                                    await navigator.clipboard.writeText(urlMatch[0]);
+                                    showToast('分享链接已复制到剪贴板', 'success');
+                                }
+                            } catch (clipboardError) {
+                                console.error('复制到剪贴板失败:', clipboardError);
+                            }
+                        }
+                        
+                    } else {
+                        // 尝试解析错误响应
+                        let errorMessage = '分享失败，请稍后重试';
+                        try {
+                            const errorText = await response.text();
+                            console.error('分享失败响应:', errorText);
+                            
+                            if (errorText.includes('not logged in') || errorText.includes('未登录')) {
+                                errorMessage = '请先登录';
+                            }
+                        } catch (e) {
+                            errorMessage = `分享失败: ${response.status} ${response.statusText}`;
+                        }
+                        
+                        showToast(errorMessage, 'error');
+                    }
+                    
+                } catch (error) {
+                    console.error('分享战局失败:', error);
+                    showToast(error.message || '分享失败，请稍后重试', 'error');
+                }
+            }
+            
+            // 显示分享确认对话框
+            function showShareConfirm() {
+                return new Promise((resolve) => {
+                    // 创建遮罩层
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.6);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 10001;
+                        backdrop-filter: blur(5px);
+                    `;
+                    
+                    // 创建确认框
+                    const confirmBox = document.createElement('div');
+                    confirmBox.style.cssText = `
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        border-radius: 20px;
+                        padding: 0;
+                        max-width: 400px;
+                        width: 90%;
+                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+                        transform: scale(0.7);
+                        transition: all 0.3s ease;
+                    `;
+                    
+                    confirmBox.innerHTML = `
+                        <div style="padding: 25px 25px 15px; text-align: center; border-bottom: 1px solid rgba(108, 155, 209, 0.2);">
+                            <div style="font-size: 2.5rem; margin-bottom: 10px;">💬</div>
+                            <h3 style="margin: 0; color: var(--dark-color); font-size: 1.3rem; font-weight: 600;">分享确认</h3>
+                        </div>
+                        <div style="padding: 20px 25px; text-align: center;">
+                            <p style="color: var(--dark-color); font-size: 1.1rem; line-height: 1.5; margin: 0 0 20px;">
+                                确定要将此战局分享到群聊吗？
+                            </p>
+                            <div style="display: flex; gap: 12px; justify-content: center;">
+                                <button id="cancelShare" style="
+                                    background: rgba(108, 117, 125, 0.1);
+                                    color: var(--accent-color);
+                                    border: 1px solid rgba(108, 117, 125, 0.3);
+                                    padding: 10px 20px;
+                                    border-radius: 20px;
+                                    font-size: 1rem;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    min-width: 80px;
+                                ">取消</button>
+                                <button id="confirmShare" style="
+                                    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 20px;
+                                    font-size: 1rem;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 4px 15px rgba(108, 155, 209, 0.3);
+                                    min-width: 80px;
+                                ">确定</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    overlay.appendChild(confirmBox);
+                    document.body.appendChild(overlay);
+                    
+                    // 显示动画
+                    setTimeout(() => {
+                        confirmBox.style.transform = 'scale(1)';
+                    }, 50);
+                    
+                    // 添加按钮事件
+                    const cancelBtn = confirmBox.querySelector('#cancelShare');
+                    const confirmBtn = confirmBox.querySelector('#confirmShare');
+                    
+                    // 取消按钮
+                    cancelBtn.addEventListener('click', () => {
+                        overlay.style.opacity = '0';
+                        confirmBox.style.transform = 'scale(0.7)';
+                        setTimeout(() => {
+                            document.body.removeChild(overlay);
+                            resolve(false);
+                        }, 300);
+                    });
+                    
+                    // 确定按钮
+                    confirmBtn.addEventListener('click', () => {
+                        overlay.style.opacity = '0';
+                        confirmBox.style.transform = 'scale(0.7)';
+                        setTimeout(() => {
+                            document.body.removeChild(overlay);
+                            resolve(true);
+                        }, 300);
+                    });
+                    
+                    // 点击遮罩层取消
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) {
+                            cancelBtn.click();
+                        }
+                    });
+                    
+                    // ESC键取消
+                    const escHandler = (e) => {
+                        if (e.key === 'Escape') {
+                            document.removeEventListener('keydown', escHandler);
+                            cancelBtn.click();
+                        }
+                    };
+                    document.addEventListener('keydown', escHandler);
+                    
+                    // 添加悬停效果
+                    cancelBtn.addEventListener('mouseenter', () => {
+                        cancelBtn.style.background = 'rgba(108, 117, 125, 0.15)';
+                        cancelBtn.style.transform = 'translateY(-1px)';
+                    });
+                    cancelBtn.addEventListener('mouseleave', () => {
+                        cancelBtn.style.background = 'rgba(108, 117, 125, 0.1)';
+                        cancelBtn.style.transform = 'translateY(0)';
+                    });
+                    
+                    confirmBtn.addEventListener('mouseenter', () => {
+                        confirmBtn.style.transform = 'translateY(-1px)';
+                        confirmBtn.style.boxShadow = '0 6px 20px rgba(108, 155, 209, 0.4)';
+                    });
+                    confirmBtn.addEventListener('mouseleave', () => {
+                        confirmBtn.style.transform = 'translateY(0)';
+                        confirmBtn.style.boxShadow = '0 4px 15px rgba(108, 155, 209, 0.3)';
+                    });
+                });
+            }
+            
+            // 显示提示消息
+            function showToast(message, type = 'info') {
+                // 创建toast元素
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    color: white;
+                    font-weight: 500;
+                    z-index: 10000;
+                    opacity: 0;
+                    transform: translateX(100%);
+                    transition: all 0.3s ease;
+                    max-width: 300px;
+                    word-wrap: break-word;
+                `;
+                
+                // 根据类型设置背景色
+                if (type === 'success') {
+                    toast.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                } else if (type === 'error') {
+                    toast.style.background = 'linear-gradient(135deg, #dc3545, #e74c3c)';
+                } else if (type === 'warning') {
+                    toast.style.background = 'linear-gradient(135deg, #ffc107, #ff9800)';
+                } else {
+                    toast.style.background = 'linear-gradient(135deg, #6c9bd1, #4fc3f7)';
+                }
+                
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                // 显示动画
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                    toast.style.transform = 'translateX(0)';
+                }, 100);
+                
+                // 3秒后自动消失
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 显示战绩隐藏信息
+            function showHiddenMessage(message) {
+                document.getElementById('playerSection').style.display = 'none';
+                document.getElementById('hiddenMessage').style.display = 'block';
+                document.getElementById('invisDes').textContent = message;
+            }
+            
+            // 更新玩家资料
+            function updatePlayerProfile(profileData) {
+                try {
+                    // 从profile.roleList中找到目标角色
+                    const targetRoleId = profileData.targetRoleId;
+                    const targetRole = profileData.roleList.find(role => role.roleId === targetRoleId);
+                    
+                    if (!targetRole) {
+                        console.error('未找到目标角色信息');
+                        return;
+                    }
+                    
+                    // 获取角色基本信息
+                    const roleName = targetRole.roleName || '未知玩家';
+                    const roleJobName = targetRole.roleJobName || '无称号';
+                    const avatar = targetRole.roleIcon || '';
+                    
+                    // 设置玩家信息
+                    document.getElementById('playerName').textContent = roleName;
+                    document.getElementById('playerTitle').textContent = roleJobName;
+                    
+                    // 设置头像
+                    const avatarElement = document.getElementById('playerAvatar');
+                    if (avatar) {
+                        avatarElement.src = avatar;
+                        avatarElement.style.display = 'block';
+                    } else {
+                        avatarElement.style.display = 'none';
+                    }
+                    
+                    // 从profile.head.mods中获取统计数据
+                    if (profileData.head && profileData.head.mods) {
+                        const mods = profileData.head.mods;
+                        
+                        // 查找各种统计数据
+                        const totalBattlesMod = mods.find(mod => mod.name === '总场次');
+                        const mvpMod = mods.find(mod => mod.name === 'MVP');
+                        const winRateMod = mods.find(mod => mod.name === '胜率');
+                        
+                        const totalBattles = totalBattlesMod ? totalBattlesMod.content : '0';
+                        const mvpCount = mvpMod ? mvpMod.content : '0';
+                        const winRate = winRateMod ? winRateMod.content : '0%';
+                        
+                        document.getElementById('totalBattles').textContent = totalBattles;
+                        document.getElementById('mvpCount').textContent = mvpCount;
+                        document.getElementById('winRate').textContent = winRate;
+                    }
+                    
+                } catch (error) {
+                    console.error('更新玩家资料失败:', error);
+                }
+            }
+
+            // 新增：渲染地图筛选按钮栏
+            function renderMapFilterBar(battles) {
+                const mapFilterBar = document.getElementById('mapFilterBar');
+                if (!battles || battles.length === 0) {
+                    mapFilterBar.style.display = 'none';
+                    return;
+                }
+                // 获取所有地图名
+                const mapSet = new Set();
+                battles.forEach(b => {
+                    if (b.mapName && b.mapName.trim()) mapSet.add(b.mapName.trim());
+                });
+                const mapList = Array.from(mapSet).sort();
+                mapList.unshift('全部');
+                mapFilterBar.innerHTML = '';
+                mapList.forEach(mapName => {
+                    const btn = document.createElement('button');
+                    btn.className = 'map-filter-btn' + (mapName === currentMapFilter ? ' active' : '');
+                    btn.textContent = mapName;
+                    btn.onclick = function() {
+                        currentMapFilter = mapName;
+                        // 更新按钮高亮
+                        Array.from(mapFilterBar.children).forEach(child => child.classList.remove('active'));
+                        btn.classList.add('active');
+                        analyzeBattles(allBattles, currentMapFilter);
+                    };
+                    mapFilterBar.appendChild(btn);
+                });
+                mapFilterBar.style.display = 'flex';
+            }
+            
+            // 分析比赛数据（支持地图筛选）
+            function analyzeBattles(battles, mapFilter = '全部') {
+                try {
+                    // 筛选
+                    let filteredBattles = battles;
+                    if (mapFilter && mapFilter !== '全部') {
+                        filteredBattles = battles.filter(b => (b.mapName || '').trim() === mapFilter);
+                    }
+                    // const recentBattles = filteredBattles.slice(0, 20);
+                    const recentBattles = filteredBattles;
+                    const battleItemsContainer = document.getElementById('battleItems');
+                    battleItemsContainer.innerHTML = '';
+                    
+                    let totalWins = 0;
+                    let totalKills = 0;
+                    let totalDeaths = 0;
+                    let totalAssists = 0;
+                    let totalMvp = 0;
+                    
+                    recentBattles.forEach((battle, index) => {
+                        // 创建比赛项目
+                        const battleItem = document.createElement('div');
+                        const gameResult = parseInt(battle.gameresult) || 0;
+                        const resultClass = gameResult === 1 ? 'win' : 'lose';
+                        const bgClass = gameResult === 1 ? 'win-bg' : 'lose-bg';
+                        battleItem.className = `battle-item ${bgClass}`;
+                        battleItem.style.cursor = 'pointer'; // 添加鼠标指针样式
+                        const resultText = gameResult === 1 ? '胜利' : '失败';
+                        
+                        const killcnt = parseInt(battle.killcnt) || 0;
+                        const deadcnt = parseInt(battle.deadcnt) || 0;
+                        const assistcnt = parseInt(battle.assistcnt) || 0;
+                        const mvpcnt = parseInt(battle.mvpcnt) || 0;
+                        const losemvp = parseInt(battle.losemvp) || 0;
+                        const gradeGame = parseFloat(battle.gradeGame) || 0;
+                        const gametime = battle.gametime || "";
+                        
+                        const kda = (killcnt + assistcnt) / Math.max(deadcnt, 1);
+                        
+                        // 获取段位信息
+                        const roleJobName = battle.roleJobName || '';
+                        const stars = battle.stars || 0;
+                        const rankInfo = roleJobName ? `${roleJobName} ${stars}⭐` : '';
+                        
+                        // 获取巅峰分信息
+                        const oldMasterScore = parseInt(battle.oldMasterMatchScore) || 0;
+                        const newMasterScore = parseInt(battle.newMasterMatchScore) || 0;
+                        const scoreDiff = newMasterScore - oldMasterScore;
+                        
+                        // 判断游戏类型显示相应信息 - 修正巅峰赛判断逻辑
+                        let gameTypeInfo = '';
+                        
+                        // 检查是否为巅峰赛：gametype为4或者有巅峰分数据
+                        const isPeakMatch = (battle.gametype === 14);
+
+                        const isTournaMatch = (battle.gametype === 4);
+                        
+                        if (isPeakMatch) {
+                            const scoreChangeText = scoreDiff > 0 ? `+${scoreDiff}` : `${scoreDiff}`;
+                            const scoreChangeClass = scoreDiff > 0 ? 'score-increase' : (scoreDiff < 0 ? 'score-decrease' : '');
+                            gameTypeInfo = `
+                                <div class="rank-value">
+                                    ${oldMasterScore}→${newMasterScore} 
+                                    <span class="${scoreChangeClass}">(${scoreChangeText})</span>
+                                </div>
+                            `;
+                        } 
+                        else if (isTournaMatch) {
+                            gameTypeInfo = `
+                                <div class="rank-value">${rankInfo}</div>
+                            `;
+                        }
+                        else if (rankInfo) {
+                            gameTypeInfo = ''
+                        }
+                        
+                        // 获取游戏时长
+                        const usedTime = battle.usedTime || 0;
+                        const gameTimeText = usedTime > 0 ? `${Math.floor(usedTime / 60)}分${usedTime % 60}秒` : '';
+                        
+                        // 获取特殊击杀信息
+                        const rampage = battle.rampage || 0;
+                        const godLike = battle.godLikeCnt || 0;
+                        const firstBlood = battle.firstBlood || 0;
+                        const tripleKill = battle.hero1TripleKillCnt || 0;
+                        const ultraKill = battle.hero1UltraKillCnt || 0;
+                        const rampageKill = battle.hero1RampageCnt || 0;
+                        
+                        let specialKills = [];
+                        if (firstBlood > 0) specialKills.push('一血');
+                        if (tripleKill > 0) specialKills.push(`三杀`);
+                        if (ultraKill > 0) specialKills.push(`四杀`);
+                        if (rampageKill > 0) specialKills.push(`五杀`);
+                        if (godLike > 0) specialKills.push(`超神`);
+                        
+                        const specialKillText = specialKills.length > 0 ? specialKills.join(' ') : '';
+                        
+                        battleItem.innerHTML = `
+                            <img src="${battle.heroIcon || ''}" alt="英雄头像" class="hero-icon" onerror="this.style.display='none'">
+                            <div class="battle-info">
+                                <div class="battle-header">
+                                    <div class="battle-title">
+                                        <strong style="font-size: 0.95rem; color: var(--dark-color);">${battle.mapName || '未知地图'}</strong>
+                                    </div>
+                                </div>
+                                <div class="battle-meta">
+                                    <div class="battle-time">
+                                        <div>${gametime}</div>
+                                        ${gameTimeText ? `<div>${gameTimeText}</div>` : ''}
+                                    </div>
+                                    <div class="game-type-info">
+                                        ${gameTypeInfo}
+                                    </div>
+                                </div>
+                                <div class="stats">
+                                    <div class="stat kda-stat">
+                                        <span class="stat-value">${killcnt}/${deadcnt}/${assistcnt}</span>
+                                    </div>
+                                    <div class="stat grade-stat">
+                                        <span class="stat-label">评分</span>
+                                        <span class="stat-value">${gradeGame.toFixed(1)}</span>
+                                    </div>
+                                    ${specialKillText ? `
+                                    <div class="stat special-kills">
+                                        ${specialKillText}
+                                    </div>
+                                    ` : ''}
+                                    ${mvpcnt > 0||losemvp>0 ? `
+                                    <div class="battle-badges">
+                                        <span class="mvp-badge">MVP</span>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <button class="share-btn" title="分享战局" data-battle-index="${index}">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                                </svg>
+                            </button>
+                            <button class="favorite-btn" title="收藏战局" data-battle-index="${index}">
+                                <svg viewBox="0 0 24 24" class="heart-outline">
+                                    <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5 2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.04L12,21.35Z"/>
+                                </svg>
+                                <svg viewBox="0 0 24 24" class="heart-filled" style="display: none;">
+                                    <path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5 2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.04L12,21.35Z"/>
+                                </svg>
+                            </button>
+                        `;
+                        
+                        // 添加点击事件处理
+                        battleItem.addEventListener('click', function(e) {
+                            // 如果点击的是收藏按钮或分享按钮，不触发战局详情跳转
+                            if (e.target.classList.contains('favorite-btn') || 
+                                e.target.classList.contains('share-btn') || 
+                                e.target.closest('.favorite-btn') || 
+                                e.target.closest('.share-btn')) {
+                                return;
+                            }
+                            handleBattleCardClick(battle, profileData, this);
+                        });
+                        
+                        // 添加收藏按钮事件处理
+                        const favoriteBtn = battleItem.querySelector('.favorite-btn');
+                        favoriteBtn.addEventListener('click', function(e) {
+                            e.stopPropagation(); // 阻止事件冒泡
+                            handleFavorite(battle, profileData, this);
+                        });
+                        
+                        // 添加分享按钮事件处理
+                        const shareBtn = battleItem.querySelector('.share-btn');
+                        shareBtn.addEventListener('click', function(e) {
+                            e.stopPropagation(); // 阻止事件冒泡
+                            handleShare(battle, profileData, this);
+                        });
+                        
+                        battleItemsContainer.appendChild(battleItem);
+                        // 统计数据
+                        if (gameResult === 1) totalWins++;
+                        totalKills += killcnt;
+                        totalDeaths += deadcnt;
+                        totalAssists += assistcnt;
+                        if (mvpcnt > 0 || losemvp > 0) totalMvp++;
+                    });
+                    // const children = Array.from(battleItemsContainer.children);
+                    // battleItemsContainer.innerHTML = ''; // 清空容器
+                    // children.reverse().forEach(child => battleItemsContainer.appendChild(child));
+                    // 更新统计卡片
+                    const totalGames = recentBattles.length;
+                    
+                    // if (totalGames > 0) {
+                    //     // 最近10场胜率（用于"近期表现"卡片）
+                    //     const recent10Battles = battles.slice(0, 10);
+                    //     const recent10Wins = recent10Battles.filter(b => parseInt(b.gameresult) === 1).length;
+                    //     const recent10WinRate = (recent10Wins / Math.min(recent10Battles.length, 10) * 100).toFixed(1);
+                        
+                    //     // 整体KDA和MVP率（基于最近20场）
+                    //     const avgKDA = ((totalKills + totalAssists) / Math.max(totalDeaths, 1)).toFixed(1);
+                    //     const mvpRate = (totalMvp / totalGames * 100).toFixed(1);
+                        
+                    //     document.getElementById('recentWinRate').textContent = `${recent10WinRate}%`;
+                    //     document.getElementById('avgKDA').textContent = avgKDA;
+                    //     document.getElementById('mvpRate').textContent = `${mvpRate}%`;
+                        
+                    //     // 创建图表
+                    //     createCharts(recentBattles);
+                    // }
+                    // 新增：如果没有比赛，显示提示
+                    if (recentBattles.length === 0) {
+                        battleItemsContainer.innerHTML = '<p>该地图暂无比赛记录</p>';
+                    }
+                } catch (error) {
+                    console.error('分析比赛数据失败:', error);
+                    document.getElementById('battleItems').innerHTML = '<p>比赛数据解析失败</p>';
+                }
+            }
+            
+            // 创建图表
+            function createCharts(battles) {
+                try {
+                    if (typeof echarts === 'undefined') {
+                        console.error('ECharts未加载');
+                        return;
+                    }
+                    
+                    // KDA趋势图
+                    const kdaChart = echarts.init(document.getElementById('kdaChart'));
+                    
+                    const dates = battles.map(battle => battle.gametime || '未知时间');
+                    const kills = battles.map(battle => parseInt(battle.killcnt) || 0);
+                    const deaths = battles.map(battle => parseInt(battle.deadcnt) || 0);
+                    const assists = battles.map(battle => parseInt(battle.assistcnt) || 0);
+                    const kdaValues = battles.map(battle => {
+                        const k = parseInt(battle.killcnt) || 0;
+                        const d = parseInt(battle.deadcnt) || 0;
+                        const a = parseInt(battle.assistcnt) || 0;
+                        return ((k + a) / Math.max(d, 1)).toFixed(1);
+                    });
+                    
+                    kdaChart.setOption({
+                        title: {
+                            text: 'KDA趋势分析',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['击杀', '死亡', '助攻', 'KDA'],
+                            bottom: 10
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: dates,
+                            axisLabel: {
+                                rotate: 45
+                            }
+                        },
+                        yAxis: [
+                            {
+                                type: 'value',
+                                name: '数量',
+                                min: 0
+                            },
+                            {
+                                type: 'value',
+                                name: 'KDA',
+                                min: 0
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '击杀',
+                                type: 'bar',
+                                data: kills,
+                                itemStyle: { color: '#81c784' }
+                            },
+                            {
+                                name: '死亡',
+                                type: 'bar',
+                                data: deaths,
+                                itemStyle: { color: '#e57373' }
+                            },
+                            {
+                                name: '助攻',
+                                type: 'bar',
+                                data: assists,
+                                itemStyle: { color: '#4fc3f7' }
+                            },
+                            {
+                                name: 'KDA',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                data: kdaValues,
+                                itemStyle: { color: '#ff8a65' },
+                                lineStyle: { width: 3 }
+                            }
+                        ]
+                    });
+                    
+                    // 雷达图
+                    const performanceChart = echarts.init(document.getElementById('performanceChart'));
+                    
+                    const avgKills = (kills.reduce((a, b) => a + b, 0) / kills.length).toFixed(1);
+                    const avgDeaths = (deaths.reduce((a, b) => a + b, 0) / deaths.length).toFixed(1);
+                    const avgAssists = (assists.reduce((a, b) => a + b, 0) / assists.length).toFixed(1);
+                    const mvpCount = battles.filter(b => (parseInt(b.mvpcnt) || 0) > 0 || (parseInt(b.losemvp) || 0) > 0).length;
+                    const mvpRate = (mvpCount / battles.length * 100).toFixed(1);
+                    const avgGrade = (battles.reduce((sum, battle) => sum + (parseFloat(battle.gradeGame) || 0), 0) / battles.length).toFixed(1);
+                    
+                    performanceChart.setOption({
+                        title: {
+                            text: '综合表现雷达图',
+                            left: 'center'
+                        },
+                        radar: {
+                            indicator: [
+                                { name: '平均击杀', max: 10 },
+                                { name: '平均助攻', max: 15 },
+                                { name: '平均死亡', max: 10 },
+                                { name: 'MVP率(%)', max: 100 },
+                                { name: '平均评分', max: 10 }
+                            ],
+                            radius: '65%'
+                        },
+                        series: [{
+                            name: '表现对比',
+                            type: 'radar',
+                            data: [{
+                                value: [avgKills, avgAssists, avgDeaths, mvpRate, avgGrade],
+                                name: '你的表现'
+                            }],
+                            areaStyle: {
+                                color: 'rgba(255, 138, 101, 0.4)'
+                            },
+                            lineStyle: {
+                                color: '#ff8a65',
+                                width: 2
+                            }
+                        }]
+                    });
+                    
+                    // 响应式调整
+                    window.addEventListener('resize', function() {
+                        kdaChart.resize();
+                        performanceChart.resize();
+                    });
+                    
+                } catch (error) {
+                    console.error('创建图表失败:', error);
+                }
+            }
+        </script>
+    </body>
+    </html>

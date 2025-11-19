@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排行详情-生煎守卫🤖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stats-overview {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: 15px;
+            padding: 15px 0;
+            border-top: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+
+        .overview-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .overview-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .overview-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .sort-section {
+            margin-top: 15px;
+            padding: 15px 0;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .sort-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .sort-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sort-option {
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .sort-option:hover {
+            background: #e9ecef;
+            border-color: #ced4da;
+        }
+
+        .sort-option.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .sort-option.active:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 100px;
+        }
+
+        .player-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .player-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100px;
+            background: linear-gradient(90deg, transparent, var(--bg-color, #f8f9fa));
+            pointer-events: none;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .player-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .rank-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .star-change {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .star-change.positive {
+            color: #22c55e;
+        }
+
+        .star-change.negative {
+            color: #ef4444;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .games-today {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        .games-today-header {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .win-loss {
+            display: flex;
+            gap: 15px;
+        }
+
+        .win-loss-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .win {
+            color: #22c55e;
+        }
+
+        .loss {
+            color: #ef4444;
+        }
+
+        /* 悬浮提示框样式 */
+        .tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.95));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #1a1a1a;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 340px;
+            min-width: 300px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.06);
+            line-height: 1.3;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .tooltip-header {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            color: #374151;
+        }
+
+        .game-detail {
+            margin-bottom: 6px;
+            padding: 6px 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .game-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .game-detail.win {
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .game-detail.loss {
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .game-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+            gap: 6px;
+        }
+
+        .game-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .game-right {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .game-result {
+            font-weight: 600;
+            font-size: 11px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            flex-shrink: 0;
+            width: fit-content;
+        }
+
+        .game-result.win {
+            color: #166534;
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .game-result.loss {
+            color: #991b1b;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .game-hero {
+            font-weight: 500;
+            color: #374151;
+            font-size: 11px;
+        }
+
+        .game-mode {
+            font-size: 10px;
+            color: #6b7280;
+            background: rgba(107, 114, 128, 0.1);
+            padding: 1px 4px;
+            border-radius: 3px;
+            width: fit-content;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            font-size: 11px;
+            color: #6b7280;
+            gap: 8px;
+        }
+
+        .game-kda {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        .game-score {
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .game-extras {
+            font-size: 10px;
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .games-today {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* 悬浮球样式 */
+        .floating-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            z-index: 1000;
+        }
+
+        .floating-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .floating-button svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        /* 筛选面板样式 */
+        .filter-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .filter-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 600px;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .filter-item:hover {
+            border-color: #3b82f6;
+        }
+
+        .filter-item.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .filter-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .filter-checkbox.checked {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .filter-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            /* color: #6c757d; */
+            font-size: 14px;
+            border-top: 1px solid #e9ecef;
+            margin-top: 40px;
+        }
+        .mini-card {
+            flex: 1;
+        }
+
+        .mini-card-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .mini-card-info {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* SVG 图标 */
+        .icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* 隐藏的玩家卡片 */
+        .player-card.hidden {
+            display: none;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .players-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .player-card {
+                padding: 15px;
+            }
+
+            .floating-button {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .filter-content {
+                max-width: 95vw;
+                padding: 15px;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-overview {
+                gap: 20px;
+                padding: 12px 0;
+            }
+
+            .overview-item {
+                gap: 1px;
+            }
+
+            .overview-label {
+                font-size: 11px;
+            }
+
+            .overview-value {
+                font-size: 16px;
+            }
+
+            .sort-section {
+                padding: 10px 0;
+                gap: 10px;
+            }
+
+            .sort-label {
+                font-size: 13px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .sort-options {
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .sort-option {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"/>
+            </svg>
+            排行数据一览
+        </h1>
+        <div class="stats-overview" id="statsOverview">
+            <!-- 统计信息将通过 JavaScript 动态生成 -->
+        </div>
+        <div class="sort-section">
+            <span class="sort-label">排序方式：</span>
+            <div class="sort-options">
+                <div class="sort-option active" data-sort="star-change" onclick="changeSortMethod('star-change')">按上星</div>
+                <div class="sort-option" data-sort="rank-star" onclick="changeSortMethod('rank-star')">按段位</div>
+                <div class="sort-option" data-sort="score" onclick="changeSortMethod('score')">按评分</div>
+                <div class="sort-option" data-sort="games" onclick="changeSortMethod('games')">按场次</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="players-grid" id="playersGrid">
+            <!-- 玩家卡片将通过 JavaScript 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 悬浮球 -->
+    <div class="floating-button" onclick="openFilterPanel()">
+        <svg viewBox="0 0 24 24">
+            <path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z"/>
+        </svg>
+    </div>
+
+    <!-- 筛选面板 -->
+    <div class="filter-panel" id="filterPanel" onclick="closeFilterPanel(event)">
+        <div class="filter-content" onclick="event.stopPropagation()">
+            <div class="filter-header">
+                <h3 class="filter-title">选择显示的玩家</h3>
+                <button class="close-button" onclick="closeFilterPanel()">&times;</button>
+            </div>
+            <div class="filter-grid" id="filterGrid">
+                <!-- 筛选项将通过 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Data from 生煎守卫🤖</p>
+    </div>
+    <script>
+        // 全局变量
+        let playersData = [];
+        let selectedPlayers = new Set();
+        let currentSortMethod = 'star-change'; // 默认按上星排序
+        
+        // 加载玩家数据
+        async function loadPlayersData() {
+            try {
+                const response = await fetch('{{filename}}');
+                const data = await response.json();
+                
+                console.log('原始数据样本:', data.slice(0, 3).map(p => ({ nickname: p.nickname, id: p.id, idType: typeof p.id })));
+                
+                // 过滤掉不可见的玩家
+                playersData = data.filter(player => player.visible !== false && player.btl_aver !== -999);
+                console.log('过滤后的玩家数据:', playersData.length, '个玩家');
+                console.log('前3个玩家的ID:', playersData.slice(0, 3).map(p => ({ nickname: p.nickname, id: p.id, idType: typeof p.id })));
+                
+                // 使用玩家ID或索引来初始化selectedPlayers
+                selectedPlayers = new Set(playersData.map((p, index) => p.id !== undefined ? p.id : index));
+                console.log('selectedPlayers Set:', selectedPlayers);
+                
+                // 数据加载完成后初始化页面
+                init();
+                
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                showErrorMessage('数据加载失败，请确保 2025-09-18.json 文件存在并可访问。');
+            }
+        }
+        
+        // 显示错误信息
+        function showErrorMessage(message) {
+            const playersGrid = document.getElementById('playersGrid');
+            playersGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+                    <svg style="width: 48px; height: 48px; margin-bottom: 16px; fill: #ef4444;" viewBox="0 0 24 24">
+                        <path d="M12,2L13.09,8.26L22,9L17,14L18.18,21L12,17.77L5.82,21L7,14L2,9L8.91,8.26L12,2Z"/>
+                    </svg>
+                    <p style="font-size: 18px; margin-bottom: 8px;">❌ ${message}</p>
+                </div>
+            `;
+        }
+
+        // 计算背景色
+        function getBackgroundColor(starUp, peakUp) {
+            let totalChange = starUp;
+            
+            // 如果有巅峰分变化，转换为星星变化 (20巅峰分 = 1星)
+            if (peakUp && peakUp.length > 0) {
+                const peakChange = peakUp[0][1] - peakUp[0][0];
+                totalChange += peakChange / 20;
+            }
+            
+            if (totalChange === 0) {
+                return 'rgba(248, 249, 250, 0.8)';
+            }
+            
+            const absChange = Math.abs(totalChange);
+            const intensity = Math.min(absChange * 0.1, 0.3); // 最大透明度0.3
+            
+            if (totalChange > 0) {
+                return `rgba(34, 197, 94, ${intensity})`; // 绿色
+            } else {
+                return `rgba(239, 68, 68, ${intensity})`; // 红色
+            }
+        }
+
+        // 获取星星变化显示
+        function getStarChangeDisplay(starUp, peakUp) {
+            let totalChange = starUp;
+            let displayText = '';
+            
+            if (starUp !== 0) {
+                displayText += `${starUp > 0 ? '+' : ''}${starUp}⭐`;
+            }
+            
+            if (peakUp && peakUp.length > 0) {
+                const peakChange = peakUp[0][1] - peakUp[0][0];
+                if (peakChange !== 0) {
+                    if (displayText) displayText += ' ';
+                    displayText += `${peakChange > 0 ? '+' : ''}${peakChange}🏔️`;
+                }
+                totalChange += peakChange / 20;
+            }
+            
+            if (!displayText) {
+                displayText = '无变化';
+            }
+            
+            return {
+                text: displayText,
+                isPositive: totalChange > 0,
+                isNegative: totalChange < 0
+            };
+        }
+
+        // 渲染全体统计信息
+        function renderStatsOverview() {
+            const statsOverview = document.getElementById('statsOverview');
+            
+            // 只计算选中的玩家 - 使用一致的ID逻辑
+            const visiblePlayers = playersData.filter((player, index) => {
+                const playerId = player.id !== undefined ? player.id : index;
+                return selectedPlayers.has(playerId);
+            });
+            
+            if (visiblePlayers.length === 0) {
+                statsOverview.innerHTML = '';
+                return;
+            }
+            
+            // 计算统计数据
+            const totalPlayers = visiblePlayers.length;
+            let totalTodayGames = 0;
+            let totalWins = 0;
+            let totalGames = 0;
+            let totalStarUp = 0;
+            let totalPeakUp = 0;
+            let avgScore = 0;
+            let validScoreCount = 0;
+            
+            visiblePlayers.forEach(player => {
+                totalTodayGames += player.today_num;
+                totalStarUp += player.star_up;
+                
+                // 计算巅峰分变化
+                if (player.peak_up && player.peak_up.length > 0) {
+                    totalPeakUp += player.peak_up[0][1] - player.peak_up[0][0];
+                }
+                
+                // 计算今日胜负
+                Object.values(player.map_cnt).forEach(([wins, games]) => {
+                    totalWins += wins;
+                    totalGames += games;
+                });
+                
+                // 计算平均分（已过滤掉-999的玩家）
+                avgScore += player.btl_aver;
+                validScoreCount++;
+            });
+            
+            const totalLosses = totalGames - totalWins;
+            const winRate = totalGames > 0 ? ((totalWins / totalGames) * 100).toFixed(1) : 0;
+            const finalAvgScore = validScoreCount > 0 ? (avgScore / validScoreCount).toFixed(2) : '0.00';
+            
+            statsOverview.innerHTML = `
+                <div class="overview-item">
+                    <div class="overview-label">参与玩家</div>
+                    <div class="overview-value">${totalPlayers}</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">今日总场次</div>
+                    <div class="overview-value">${totalTodayGames}</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">今日胜率</div>
+                    <div class="overview-value" style="color: ${winRate >= 50 ? '#22c55e' : '#ef4444'}">${winRate}%</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">总星星变化</div>
+                    <div class="overview-value" style="color: ${totalStarUp >= 0 ? '#22c55e' : '#ef4444'}">${totalStarUp >= 0 ? '+' : ''}${totalStarUp}</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">总巅峰分变化</div>
+                    <div class="overview-value" style="color: ${totalPeakUp >= 0 ? '#22c55e' : '#ef4444'}">${totalPeakUp >= 0 ? '+' : ''}${totalPeakUp}</div>
+                </div>
+                <div class="overview-item">
+                    <div class="overview-label">平均评分</div>
+                    <div class="overview-value">${finalAvgScore}</div>
+                </div>
+            `;
+        }
+
+        // 格式化游戏详情悬浮框内容
+        function getGameDetailsTooltip(player) {
+            if (!player || !player.details || player.details.length === 0) {
+                return '<div class="tooltip-header">暂无详细战绩</div>';
+            }
+            
+            const header = `<div class="tooltip-header">📊 今日战绩详情 (${player.details.length}场)</div>`;
+            
+            const gamesList = player.details.map(game => {
+                const isWin = game.Result === '胜利';
+                const resultClass = isWin ? 'win' : 'loss';
+                const resultText = isWin ? '胜' : '负';
+                const kda = `${game.KillCnt}/${game.DeadCnt}/${game.AssistCnt}`;
+                const duration = Math.floor(game.Duration_Second / 60);
+                const extras = game.Others ? game.Others.trim() : '';
+                const gameMode = game.MapName || '经典模式';
+                
+                return `
+                    <div class="game-detail ${resultClass}">
+                        <div class="game-meta">
+                            <div class="game-left">
+                                <div class="game-mode">${gameMode}</div>
+                                <div class="game-hero">${game.HeroName}</div>
+                            </div>
+                            <div class="game-right">
+                                <div class="game-result ${resultClass}">${resultText}</div>
+                                <div class="game-score">${game.GameGrade}分</div>
+                                <div>${duration}分钟</div>
+                            </div>
+                        </div>
+                        <div class="game-stats">
+                            <span class="game-kda">${kda}</span>
+                            ${extras ? `<span class="game-extras">${extras}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            return header + gamesList;
+        }
+
+        // 显示悬浮提示框
+        function showTooltip(event, content) {
+            let tooltip = document.getElementById('gameTooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'gameTooltip';
+                tooltip.className = 'tooltip';
+                document.body.appendChild(tooltip);
+            }
+            
+            tooltip.innerHTML = content;
+            tooltip.className = 'tooltip show';
+            
+            // 获取鼠标相对于页面的位置
+            const mouseX = event.pageX;
+            const mouseY = event.pageY;
+            
+            // 设置初始位置（在鼠标上方10px）
+            tooltip.style.left = mouseX + 'px';
+            tooltip.style.top = (mouseY - 10) + 'px';
+            tooltip.style.transform = 'translate(-50%, -100%)';
+            
+            // 强制重新计算布局
+            tooltip.offsetHeight;
+            
+            // 检查是否超出视窗边界并调整位置
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // 水平方向调整
+            if (tooltipRect.left < 10) {
+                tooltip.style.transform = 'translate(0, -100%)';
+            } else if (tooltipRect.right > viewportWidth - 10) {
+                tooltip.style.transform = 'translate(-100%, -100%)';
+            }
+            
+            // 垂直方向调整（如果上方空间不足，显示在鼠标下方）
+            if (tooltipRect.top < 10) {
+                tooltip.style.top = (mouseY + 10) + 'px';
+                tooltip.style.transform = tooltip.style.transform.replace('-100%', '0');
+            }
+        }
+
+        // 隐藏悬浮提示框
+        function hideTooltip() {
+            const tooltip = document.getElementById('gameTooltip');
+            if (tooltip) {
+                tooltip.className = 'tooltip';
+            }
+        }
+        // 切换排序方法
+        function changeSortMethod(method) {
+            currentSortMethod = method;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.sort-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-sort="${method}"]`).classList.add('active');
+            
+            // 重新渲染卡片
+            renderPlayerCards();
+        }
+
+        // 获取排序值的函数
+        function getSortValue(player, method) {
+            switch (method) {
+                case 'star-change':
+                    // 按上星（含巅峰分）
+                    let totalChange = player.star_up;
+                    if (player.peak_up && player.peak_up.length > 0) {
+                        const peakChange = player.peak_up[0][1] - player.peak_up[0][0];
+                        totalChange += peakChange / 20;
+                    }
+                    return totalChange;
+                
+                case 'rank-star':
+                    // 按段位星数
+                    return player.rank_star;
+                
+                case 'score':
+                    // 按评分（已经过滤掉-999的玩家）
+                    return player.btl_aver;
+                
+                case 'games':
+                    // 按今日场次
+                    return player.today_num;
+                
+                default:
+                    return 0;
+            }
+        }
+        function renderPlayerCards() {
+            const playersGrid = document.getElementById('playersGrid');
+            playersGrid.innerHTML = '';
+
+            // 筛选并排序玩家
+            const visiblePlayers = playersData
+                .filter((player, index) => {
+                    const playerId = player.id !== undefined ? player.id : index;
+                    return selectedPlayers.has(playerId);
+                })
+                .sort((a, b) => {
+                    return getSortValue(b, currentSortMethod) - getSortValue(a, currentSortMethod);
+                });
+
+            visiblePlayers.forEach((player, index) => {
+                console.log('处理玩家:', player.nickname, 'ID:', player.id, 'ID类型:', typeof player.id);
+                
+                // 直接使用索引作为数据标识符，更可靠
+                const dataIndex = index;
+                console.log('使用的dataIndex:', dataIndex);
+                
+                const bgColor = getBackgroundColor(player.star_up, player.peak_up);
+                const starChange = getStarChangeDisplay(player.star_up, player.peak_up);
+                
+                // 计算胜负场次
+                let totalWins = 0, totalGames = 0;
+                Object.values(player.map_cnt).forEach(([wins, games]) => {
+                    totalWins += wins;
+                    totalGames += games;
+                });
+                const totalLosses = totalGames - totalWins;
+
+                const cardHTML = `
+                    <div class="player-card" style="--bg-color: ${bgColor}">
+                        <div class="card-header">
+                            <div class="player-name">${player.nickname}</div>
+                            <div class="rank-info">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M5,16L3,14L5,12L6.5,13.5L11,9L12.5,10.5L6.5,16.5L5,16Z"/>
+                                </svg>
+                                ${player.rank_name}：${player.rank_star}星
+                            </div>
+                        </div>
+                        
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                                </svg>
+                                均分: <span class="stat-value">${player.btl_aver}</span>
+                            </div>
+                            <div class="star-change ${starChange.isPositive ? 'positive' : ''} ${starChange.isNegative ? 'negative' : ''}">
+                                ${starChange.text}
+                            </div>
+                        </div>
+                        
+                        <div class="games-today" data-index="${dataIndex}">
+                            <div class="games-today-header">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                                </svg>
+                                今日战绩 (${player.today_num}场)
+                            </div>
+                            <div class="win-loss">
+                                <div class="win-loss-item win">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                                    </svg>
+                                    胜: ${totalWins}
+                                </div>
+                                <div class="win-loss-item loss">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                                    </svg>
+                                    负: ${totalLosses}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                playersGrid.innerHTML += cardHTML;
+            });
+
+            // 添加事件监听器
+            setTimeout(() => {
+                console.log('开始绑定事件监听器，visiblePlayers数量:', visiblePlayers.length);
+                document.querySelectorAll('.games-today').forEach(element => {
+                    console.log('处理元素，dataset:', element.dataset);
+                    const indexStr = element.dataset.index;
+                    console.log('原始index字符串:', indexStr, '类型:', typeof indexStr);
+                    const index = parseInt(indexStr);
+                    console.log('解析后的index:', index, '是否为NaN:', isNaN(index));
+                    
+                    if (!isNaN(index) && index >= 0 && index < visiblePlayers.length) {
+                        const player = visiblePlayers[index];
+                        console.log('找到玩家数据:', player.nickname);
+                        
+                        element.addEventListener('mouseenter', (event) => {
+                            console.log('鼠标进入，玩家数据:', player.nickname, player.details);
+                            const tooltipContent = getGameDetailsTooltip(player);
+                            console.log('悬浮框内容:', tooltipContent);
+                            showTooltip(event, tooltipContent);
+                        });
+                        
+                        element.addEventListener('mouseleave', hideTooltip);
+                    } else {
+                        console.warn('未找到玩家数据，index:', index, '原始字符串:', indexStr);
+                    }
+                });
+            }, 100);
+        }
+
+        // 渲染筛选项
+        function renderFilterItems() {
+            const filterGrid = document.getElementById('filterGrid');
+            filterGrid.innerHTML = '';
+
+            playersData.forEach((player, index) => {
+                const playerId = player.id !== undefined ? player.id : index;
+                const isSelected = selectedPlayers.has(playerId);
+                const starChange = getStarChangeDisplay(player.star_up, player.peak_up);
+                
+                const itemHTML = `
+                    <div class="filter-item ${isSelected ? 'selected' : ''}" onclick="togglePlayer(${playerId})">
+                        <div class="filter-checkbox ${isSelected ? 'checked' : ''}"></div>
+                        <div class="mini-card">
+                            <div class="mini-card-name">${player.nickname}</div>
+                            <div class="mini-card-info">
+                                ${player.rank_name}：${player.rank_star}星 | 今日${player.today_num}场
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                filterGrid.innerHTML += itemHTML;
+            });
+        }
+
+        // 切换玩家选择状态
+        function togglePlayer(playerId) {
+            if (selectedPlayers.has(playerId)) {
+                selectedPlayers.delete(playerId);
+            } else {
+                selectedPlayers.add(playerId);
+            }
+            renderFilterItems();
+            renderPlayerCards();
+            renderStatsOverview(); // 更新统计信息
+        }
+
+        // 打开筛选面板
+        function openFilterPanel() {
+            document.getElementById('filterPanel').style.display = 'flex';
+        }
+
+        // 关闭筛选面板
+        function closeFilterPanel(event) {
+            if (!event || event.target.id === 'filterPanel') {
+                document.getElementById('filterPanel').style.display = 'none';
+            }
+        }
+
+        // 初始化页面
+        function init() {
+            if (playersData.length === 0) {
+                showErrorMessage('没有找到玩家数据');
+                return;
+            }
+            renderStatsOverview();
+            renderPlayerCards();
+            renderFilterItems();
+        }
+
+        // 页面加载完成后加载数据并初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 显示加载提示
+            const playersGrid = document.getElementById('playersGrid');
+            playersGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
+                    <div style="width: 40px; height: 40px; margin: 0 auto 16px; border: 3px solid #e5e7eb; border-top: 3px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="font-size: 16px;">正在加载数据...</p>
+                </div>
+            `;
+            
+            // 添加旋转动画
+            if (!document.querySelector('#loading-style')) {
+                const style = document.createElement('style');
+                style.id = 'loading-style';
+                style.textContent = `
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            loadPlayersData();
+        });
+    </script>
+</body>
+</html>
