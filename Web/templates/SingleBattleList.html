@@ -49,14 +49,119 @@
                 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             }
 
+            /* 筛选控制区域样式 */
+            .filter-control-area {
+                background: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(108, 155, 209, 0.2);
+                border-radius: 12px;
+                padding: 18px 20px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            }
+
+            .filter-header {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 20px;
+                flex-wrap: nowrap;
+            }
+
+            .today-filter-checkbox {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                padding: 10px 15px;
+                background: linear-gradient(135deg, rgba(108, 155, 209, 0.12), rgba(79, 195, 247, 0.12));
+                border: 1px solid rgba(108, 155, 209, 0.25);
+                border-radius: 10px;
+                transition: all 0.3s ease;
+                user-select: none;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+                width: auto;
+                flex-shrink: 0;
+            }
+
+            .today-filter-checkbox:hover {
+                background: linear-gradient(135deg, rgba(108, 155, 209, 0.18), rgba(79, 195, 247, 0.18));
+                border-color: rgba(108, 155, 209, 0.5);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+
+            .today-filter-checkbox input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
+                accent-color: var(--primary-color);
+                margin: 0;
+                flex-shrink: 0;
+            }
+
+            .today-filter-checkbox label {
+                cursor: pointer;
+                font-size: 0.9rem;
+                color: var(--dark-color);
+                font-weight: 500;
+                margin: 0;
+                white-space: nowrap;
+            }
+
+            .map-filter-toggle {
+                background: linear-gradient(135deg, rgba(108, 155, 209, 0.12), rgba(79, 195, 247, 0.12));
+                color: var(--dark-color);
+                border: 1px solid rgba(108, 155, 209, 0.25);
+                border-radius: 10px;
+                padding: 10px 15px;
+                font-size: 0.95rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+                white-space: nowrap;
+                flex: 1;
+            }
+
+            .map-filter-toggle:hover {
+                background: linear-gradient(135deg, rgba(108, 155, 209, 0.18), rgba(79, 195, 247, 0.18));
+                border-color: rgba(108, 155, 209, 0.4);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+
+            .map-filter-toggle .arrow {
+                transition: transform 0.3s ease;
+                display: inline-block;
+                font-size: 0.8rem;
+            }
+
+            .map-filter-toggle.expanded .arrow {
+                transform: rotate(180deg);
+            }
+
             /* 地图筛选按钮栏样式 */
             .map-filter-bar {
-                display: flex;
+                display: none;
                 flex-wrap: wrap;
                 gap: 10px;
-                margin-bottom: 20px;
-                padding: 10px 0;
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid rgba(108, 155, 209, 0.2);
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
             }
+
+            .map-filter-bar.expanded {
+                display: flex;
+                max-height: 500px;
+            }
+
             .map-filter-btn {
                 background: rgba(255, 255, 255, 0.7);
                 color: var(--dark-color);
@@ -246,6 +351,45 @@
             }
 
             .share-btn svg {
+                width: 16px;
+                height: 16px;
+                fill: currentColor;
+                transition: all 0.3s ease;
+            }
+
+            .analyze-btn {
+                position: absolute;
+                top: 12px;
+                right: 84px;
+                width: 32px;
+                height: 32px;
+                border: none;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.9);
+                color: #666;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+                z-index: 10;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .analyze-btn:hover {
+                background: rgba(255, 255, 255, 1);
+                color: #9c27b0;
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .analyze-btn.loading {
+                pointer-events: none;
+                opacity: 0.6;
+            }
+
+            .analyze-btn svg {
                 width: 16px;
                 height: 16px;
                 fill: currentColor;
@@ -566,6 +710,18 @@
                 }
 
                 .share-btn svg {
+                    width: 14px;
+                    height: 14px;
+                }
+
+                .analyze-btn {
+                    width: 28px;
+                    height: 28px;
+                    top: 8px;
+                    right: 72px;
+                }
+
+                .analyze-btn svg {
                     width: 14px;
                     height: 14px;
                 }
@@ -932,7 +1088,61 @@
                 transform: translateY(0);
             }
 
+            @media (max-width: 768px) {
+                .filter-control-area {
+                    padding: 12px 15px;
+                }
+                
+                .filter-header {
+                    gap: 10px;
+                }
+                
+                .today-filter-checkbox,
+                .map-filter-toggle {
+                    padding: 9px 13px;
+                    font-size: 0.88rem;
+                }
+                
+                .today-filter-checkbox input[type="checkbox"] {
+                    width: 17px;
+                    height: 17px;
+                }
+                
+                .today-filter-checkbox label {
+                    font-size: 0.88rem;
+                }
+            }
+
             @media (max-width: 480px) {
+                .filter-control-area {
+                    padding: 10px 12px;
+                }
+                
+                .filter-header {
+                    gap: 8px;
+                }
+                
+                .today-filter-checkbox,
+                .map-filter-toggle {
+                    padding: 8px 10px;
+                    font-size: 0.82rem;
+                    flex: 1;
+                    gap: 6px;
+                }
+                
+                .today-filter-checkbox input[type="checkbox"] {
+                    width: 16px;
+                    height: 16px;
+                }
+                
+                .today-filter-checkbox label {
+                    font-size: 0.82rem;
+                }
+                
+                .map-filter-toggle .arrow {
+                    font-size: 0.7rem;
+                }
+                
                 .modal-content {
                     width: 95%;
                     margin: 10px;
@@ -977,7 +1187,19 @@
                     </div> -->
                 </div>
             </div>
-            <div id="mapFilterBar" class="map-filter-bar" style="display:none;"></div>
+            <div id="filterControlArea" class="filter-control-area" style="display:none;">
+                <div class="filter-header">
+                    <div class="today-filter-checkbox">
+                        <input type="checkbox" id="todayFilterCheckbox">
+                        <label for="todayFilterCheckbox">仅今日</label>
+                    </div>
+                    <button id="mapFilterToggle" class="map-filter-toggle">
+                        <span>游戏模式筛选</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                </div>
+                <div id="mapFilterBar" class="map-filter-bar"></div>
+            </div>
             <div id="loadingMessage" class="loading-message">
                 <h3>正在加载数据...</h3>
             </div>
@@ -1094,6 +1316,7 @@
             // 用于存储所有比赛数据和当前筛选
             let allBattles = [];
             let currentMapFilter = '全部';
+            let showTodayOnly = false; // 是否仅显示今日战局
             let profileData = null; // 添加全局变量存储profile数据
             const modalLinkTimers = new WeakMap();
             const battleCardLoadingTimers = new WeakMap();
@@ -1632,6 +1855,10 @@
             let lastShareTime = 0;
             const SHARE_COOLDOWN = 10000; // 10秒限制
             
+            // 分析限时控制
+            let lastAnalyzeTime = 0;
+            const ANALYZE_COOLDOWN = 10000; // 10秒限制
+            
             function checkBtlOfficialWithMatching(btlname) {
                 btlname = btlname.toLowerCase();
                 
@@ -1752,6 +1979,113 @@
                 }
             }
             
+            // 处理分析按钮点击事件
+            async function handleAnalyze(battle, profileData, buttonElement) {
+                try {
+                    // 检查分析限时
+                    const currentTime = Date.now();
+                    const timeSinceLastAnalyze = currentTime - lastAnalyzeTime;
+                    
+                    if (timeSinceLastAnalyze < ANALYZE_COOLDOWN) {
+                        const remainingSeconds = Math.ceil((ANALYZE_COOLDOWN - timeSinceLastAnalyze) / 1000);
+                        showToast(`请等待 ${remainingSeconds} 秒后再分析`, 'warning');
+                        return;
+                    }
+                    
+                    if (!checkBtlOfficialWithMatching(battle.mapName)){
+                        showToast(`仅支持分析排位/巅峰/战队/匹配`, 'warning');
+                        return;
+                    }
+                    
+                    // 显示确认对话框
+                    const confirmed = await showAnalyzeConfirm();
+                    if (!confirmed) {
+                        return; // 用户取消分析
+                    }
+                    
+                    // 记录当前分析时间
+                    lastAnalyzeTime = currentTime;
+                    
+                    // 添加点击效果
+                    buttonElement.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        buttonElement.style.transform = 'scale(1)';
+                    }, 150);
+                    
+                    // 设置按钮为加载状态
+                    buttonElement.classList.add('loading');
+                    
+                    // 提取战局信息参数 - 与战斗详情页面保持一致
+                    const gameSvr = battle.gameSvrId || '';
+                    const gameSeq = battle.gameSeq || '';
+                    const targetRoleId = profileData.targetRoleId || '';
+                    const relaySvr = battle.relaySvrId || '';
+                    const battleType = parseInt(battle.pvpType) || 0;
+                    
+                    // 构建GET请求参数
+                    const params = new URLSearchParams({
+                        gameSvr: gameSvr,
+                        gameSeq: gameSeq,
+                        targetRoleId: targetRoleId,
+                        relaySvr: relaySvr,
+                        battleType: battleType,
+                        key: '{{key}}'
+                    });
+                    
+                    // 调试日志
+                    console.log('分析战局参数:', {
+                        gameSvr: gameSvr,
+                        gameSeq: gameSeq,
+                        targetRoleId: targetRoleId,
+                        relaySvr: relaySvr,
+                        battleType: battleType,
+                        key: '{{key}}'
+                    });
+                    
+                    // 发送GET请求到分析接口
+                    const response = await fetch(`/analyze-btldetail?${params.toString()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    
+                    // 恢复按钮状态
+                    buttonElement.classList.remove('loading');
+                    
+                    if (response.ok) {
+                        const result = await response.text();
+                        console.log('分析成功:', result);
+                        
+                        showToast('分析请求已发送，请稍候查看结果', 'success');
+                        
+                    } else {
+                        // 尝试解析错误响应
+                        let errorMessage = '分析失败，请稍后重试';
+                        try {
+                            const errorText = await response.text();
+                            console.error('分析失败响应:', errorText);
+                            
+                            if (errorText.includes('not logged in') || errorText.includes('未登录')) {
+                                errorMessage = '请先登录';
+                            }
+                        } catch (e) {
+                            errorMessage = `分析失败: ${response.status} ${response.statusText}`;
+                        }
+                        
+                        showToast(errorMessage, 'error');
+                    }
+                    
+                } catch (error) {
+                    console.error('分析战局失败:', error);
+                    
+                    // 恢复按钮状态
+                    buttonElement.classList.remove('loading');
+                    
+                    showToast(error.message || '分析失败，请稍后重试', 'error');
+                }
+            }
+            
             // 显示分享确认对话框
             function showShareConfirm() {
                 return new Promise((resolve) => {
@@ -1793,7 +2127,7 @@
                         </div>
                         <div style="padding: 20px 25px; text-align: center;">
                             <p style="color: var(--dark-color); font-size: 1.1rem; line-height: 1.5; margin: 0 0 20px;">
-                                确定要将此战局分享到群聊吗？
+                                点击确认后会将该战局分享到群聊
                             </p>
                             <div style="display: flex; gap: 12px; justify-content: center;">
                                 <button id="cancelShare" style="
@@ -1888,6 +2222,146 @@
                     confirmBtn.addEventListener('mouseleave', () => {
                         confirmBtn.style.transform = 'translateY(0)';
                         confirmBtn.style.boxShadow = '0 4px 15px rgba(108, 155, 209, 0.3)';
+                    });
+                });
+            }
+            
+            // 显示分析确认对话框
+            function showAnalyzeConfirm() {
+                return new Promise((resolve) => {
+                    // 创建遮罩层
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.6);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 10001;
+                        backdrop-filter: blur(5px);
+                    `;
+                    
+                    // 创建确认框
+                    const confirmBox = document.createElement('div');
+                    confirmBox.style.cssText = `
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                        border-radius: 20px;
+                        padding: 0;
+                        max-width: 400px;
+                        width: 90%;
+                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+                        transform: scale(0.7);
+                        transition: all 0.3s ease;
+                    `;
+                    
+                    confirmBox.innerHTML = `
+                        <div style="padding: 25px 25px 15px; text-align: center; border-bottom: 1px solid rgba(108, 155, 209, 0.2);">
+                            <div style="font-size: 2.5rem; margin-bottom: 10px;">📊</div>
+                            <h3 style="margin: 0; color: var(--dark-color); font-size: 1.3rem; font-weight: 600;">分析确认</h3>
+                        </div>
+                        <div style="padding: 20px 25px; text-align: center;">
+                            <p style="color: var(--dark-color); font-size: 1.1rem; line-height: 1.5; margin: 0 0 20px;">
+                                点击确认后会分析该战局的底蕴并发送到群聊
+                            </p>
+                            <div style="display: flex; gap: 12px; justify-content: center;">
+                                <button id="cancelAnalyze" style="
+                                    background: rgba(108, 117, 125, 0.1);
+                                    color: var(--accent-color);
+                                    border: 1px solid rgba(108, 117, 125, 0.3);
+                                    padding: 10px 20px;
+                                    border-radius: 20px;
+                                    font-size: 1rem;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    min-width: 80px;
+                                ">取消</button>
+                                <button id="confirmAnalyze" style="
+                                    background: linear-gradient(135deg, #9c27b0, #ab47bc);
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 20px;
+                                    font-size: 1rem;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+                                    min-width: 80px;
+                                ">确定</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    overlay.appendChild(confirmBox);
+                    document.body.appendChild(overlay);
+                    
+                    // 显示动画
+                    setTimeout(() => {
+                        confirmBox.style.transform = 'scale(1)';
+                    }, 50);
+                    
+                    // 添加按钮事件
+                    const cancelBtn = confirmBox.querySelector('#cancelAnalyze');
+                    const confirmBtn = confirmBox.querySelector('#confirmAnalyze');
+                    
+                    // 取消按钮
+                    cancelBtn.addEventListener('click', () => {
+                        overlay.style.opacity = '0';
+                        confirmBox.style.transform = 'scale(0.7)';
+                        setTimeout(() => {
+                            document.body.removeChild(overlay);
+                            resolve(false);
+                        }, 300);
+                    });
+                    
+                    // 确定按钮
+                    confirmBtn.addEventListener('click', () => {
+                        overlay.style.opacity = '0';
+                        confirmBox.style.transform = 'scale(0.7)';
+                        setTimeout(() => {
+                            document.body.removeChild(overlay);
+                            resolve(true);
+                        }, 300);
+                    });
+                    
+                    // 点击遮罩层取消
+                    overlay.addEventListener('click', (e) => {
+                        if (e.target === overlay) {
+                            cancelBtn.click();
+                        }
+                    });
+                    
+                    // ESC键取消
+                    const escHandler = (e) => {
+                        if (e.key === 'Escape') {
+                            document.removeEventListener('keydown', escHandler);
+                            cancelBtn.click();
+                        }
+                    };
+                    document.addEventListener('keydown', escHandler);
+                    
+                    // 添加悬停效果
+                    cancelBtn.addEventListener('mouseenter', () => {
+                        cancelBtn.style.background = 'rgba(108, 117, 125, 0.15)';
+                        cancelBtn.style.transform = 'translateY(-1px)';
+                    });
+                    cancelBtn.addEventListener('mouseleave', () => {
+                        cancelBtn.style.background = 'rgba(108, 117, 125, 0.1)';
+                        cancelBtn.style.transform = 'translateY(0)';
+                    });
+                    
+                    confirmBtn.addEventListener('mouseenter', () => {
+                        confirmBtn.style.transform = 'translateY(-1px)';
+                        confirmBtn.style.boxShadow = '0 6px 20px rgba(156, 39, 176, 0.4)';
+                    });
+                    confirmBtn.addEventListener('mouseleave', () => {
+                        confirmBtn.style.transform = 'translateY(0)';
+                        confirmBtn.style.boxShadow = '0 4px 15px rgba(156, 39, 176, 0.3)';
                     });
                 });
             }
@@ -2004,11 +2478,16 @@
 
             // 新增：渲染地图筛选按钮栏
             function renderMapFilterBar(battles) {
+                const filterControlArea = document.getElementById('filterControlArea');
                 const mapFilterBar = document.getElementById('mapFilterBar');
+                const mapFilterToggle = document.getElementById('mapFilterToggle');
+                const todayFilterCheckbox = document.getElementById('todayFilterCheckbox');
+                
                 if (!battles || battles.length === 0) {
-                    mapFilterBar.style.display = 'none';
+                    filterControlArea.style.display = 'none';
                     return;
                 }
+                
                 // 获取所有地图名
                 const mapSet = new Set();
                 battles.forEach(b => {
@@ -2026,21 +2505,72 @@
                         // 更新按钮高亮
                         Array.from(mapFilterBar.children).forEach(child => child.classList.remove('active'));
                         btn.classList.add('active');
-                        analyzeBattles(allBattles, currentMapFilter);
+                        applyFilters();
                     };
                     mapFilterBar.appendChild(btn);
                 });
-                mapFilterBar.style.display = 'flex';
+                
+                // 设置折叠按钮事件
+                mapFilterToggle.onclick = function() {
+                    mapFilterToggle.classList.toggle('expanded');
+                    mapFilterBar.classList.toggle('expanded');
+                };
+                
+                // 设置今日筛选复选框事件
+                const todayFilterContainer = todayFilterCheckbox.parentElement;
+                todayFilterCheckbox.onchange = function() {
+                    showTodayOnly = this.checked;
+                    applyFilters();
+                };
+                
+                // 点击整个容器也能切换复选框
+                todayFilterContainer.onclick = function(e) {
+                    // 如果点击的不是复选框或标签本身，则手动切换
+                    if (e.target !== todayFilterCheckbox && e.target.tagName !== 'LABEL') {
+                        todayFilterCheckbox.checked = !todayFilterCheckbox.checked;
+                        showTodayOnly = todayFilterCheckbox.checked;
+                        applyFilters();
+                    }
+                };
+                
+                filterControlArea.style.display = 'block';
             }
             
-            // 分析比赛数据（支持地图筛选）
-            function analyzeBattles(battles, mapFilter = '全部') {
+            // 应用所有筛选条件
+            function applyFilters() {
+                analyzeBattles(allBattles, currentMapFilter, showTodayOnly);
+            }
+            
+            // 检查战局是否是今天的
+            function isTodayBattle(battle) {
+                if (!battle.dtEventTime) return false;
+                
+                // dtEventTime是Unix时间戳（秒）
+                const battleDate = new Date(battle.dtEventTime * 1000);
+                const today = new Date();
+                
+                // 比较年月日是否相同
+                return battleDate.getFullYear() === today.getFullYear() &&
+                       battleDate.getMonth() === today.getMonth() &&
+                       battleDate.getDate() === today.getDate();
+            }
+            
+            // 分析比赛数据（支持地图筛选和今日筛选）
+            function analyzeBattles(battles, mapFilter = '全部', todayOnly = false) {
                 try {
                     // 筛选
                     let filteredBattles = battles;
+                    
+                    // 地图筛选
                     if (mapFilter && mapFilter !== '全部') {
-                        filteredBattles = battles.filter(b => (b.mapName || '').trim() === mapFilter);
+                        filteredBattles = filteredBattles.filter(b => (b.mapName || '').trim() === mapFilter);
                     }
+                    
+                    // 今日筛选
+                    if (todayOnly) {
+                        filteredBattles = filteredBattles.filter(b => isTodayBattle(b));
+                    }
+                    
                     // const recentBattles = filteredBattles.slice(0, 20);
                     const recentBattles = filteredBattles;
                     const battleItemsContainer = document.getElementById('battleItems');
@@ -2167,6 +2697,11 @@
                                     ` : ''}
                                 </div>
                             </div>
+                            <button class="analyze-btn" title="分析战局" data-battle-index="${index}">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z"/>
+                                </svg>
+                            </button>
                             <button class="share-btn" title="分享战局" data-battle-index="${index}">
                                 <svg viewBox="0 0 24 24">
                                     <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
@@ -2184,11 +2719,13 @@
                         
                         // 添加点击事件处理
                         battleItem.addEventListener('click', function(e) {
-                            // 如果点击的是收藏按钮或分享按钮，不触发战局详情跳转
+                            // 如果点击的是收藏按钮、分享按钮或分析按钮，不触发战局详情跳转
                             if (e.target.classList.contains('favorite-btn') || 
                                 e.target.classList.contains('share-btn') || 
+                                e.target.classList.contains('analyze-btn') || 
                                 e.target.closest('.favorite-btn') || 
-                                e.target.closest('.share-btn')) {
+                                e.target.closest('.share-btn') || 
+                                e.target.closest('.analyze-btn')) {
                                 return;
                             }
                             handleBattleCardClick(battle, profileData, this);
@@ -2206,6 +2743,13 @@
                         shareBtn.addEventListener('click', function(e) {
                             e.stopPropagation(); // 阻止事件冒泡
                             handleShare(battle, profileData, this);
+                        });
+                        
+                        // 添加分析按钮事件处理
+                        const analyzeBtn = battleItem.querySelector('.analyze-btn');
+                        analyzeBtn.addEventListener('click', function(e) {
+                            e.stopPropagation(); // 阻止事件冒泡
+                            handleAnalyze(battle, profileData, this);
                         });
                         
                         battleItemsContainer.appendChild(battleItem);
